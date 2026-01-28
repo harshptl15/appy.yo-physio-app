@@ -1,0 +1,70 @@
+<!--
+@Author Gregory Mah
+@Date 2025-07-14
+@class CST8319_320
+This is the dashboard, landing page after login. Needs lots of work. Most things 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Physio Dashboard</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+  <div class="overlay">
+    <aside class="sidebar">
+      <div>
+        <h2>👋 Welcome, <%= user.username %></h2>
+        <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
+        <a class="nav-link" href="/showRoutine">📅 Routines</a>
+        <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+        <a class="nav-link" href="/about">ℹ️ About Us</a>
+        <a class="nav-link" href="/settings">⚙️ Settings</a>
+        <a class="nav-link" href="/twofa/setup">🔒 Enable 2FA</a>
+        <a class="nav-link" href="/twofa/disable">🔓 Disable 2FA</a>
+      </div>
+      <a href="/logout" class="action-btn">Logout</a>
+    </aside>
+
+    <main class="main-content">
+      <h1>Your Progress</h1>
+      <div class="stats">
+        <div class="stat-box">
+          <h2></h2>
+          <p>Next Break Day</p>
+        </div>
+        <div class="stat-box">
+          <h2></h2>
+          <p>Current Streak</p>
+        </div>
+        <div class="stat-box">
+          <h2></h2>
+          <p>Last Workout</p>
+        </div>
+      </div>
+
+      <div class="cta-buttons">
+        <a href="/workouts" class="action-btn">Start New Workout</a>
+        <a href="/goals" class="action-btn secondary">Your Goals</a>
+      </div>
+    </main>
+  </div>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const disable2faLink = document.querySelector('a[href="/twofa/disable"]');
+
+    if (disable2faLink) {
+      disable2faLink.addEventListener("click", function (event) {
+        const confirmed = confirm("Are you sure you want to disable Two-Factor Authentication?");
+        if (!confirmed) {
+          event.preventDefault(); // Stop the navigation
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>

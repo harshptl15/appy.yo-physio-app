@@ -1,0 +1,83 @@
+<!--
+ @Author Gregory Mah
+ @Date 2025-07-14
+ @class CST8319_320
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercises</title>
+    <link rel="stylesheet" href="css/exercises.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body>
+    <div class="overlay">
+        <button class="hamburger" id="hamburgerBtn">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
+                <a class="nav-link" href="/showRoutine">📅 Routines</a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+                <a class="nav-link" href="/about">ℹ️ About Us</a>
+                <a class="nav-link" href="/settings">⚙️ Settings</a>
+            </div>
+            <a href="/logout" class="action-btn logout-btn">Logout</a>
+        </aside>
+        <div class="form-card animate__animated animate__fadeInUp">
+            <h1 class="animate__animated animate__fadeInDown">Select Exercises</h1>
+            <p>
+            <!-- /showExerciseRoutine is the route to the controller that shows the exercise routine -->
+            <form action="/showExerciseRoutine" method="post">
+                <label for="exerciseResults">Your Routine:</label>
+                <!-- name=exerciseResults is the name for the select element which a controller uses to read,
+                not to be confused with exerciseResults which is the array of exercise objects passed from a controller
+                exercise is the element of the exerciseResults array of objects,
+                exercise.exerciseName is the name of the exercise as a string.-->
+                <!-- select may have been a bad choice here, as we cannot store multiple
+                 values in an element. -->
+                <!-- <select name="exerciseResults" id="exerciseResults" multiple>
+                <% exerciseResults.forEach(function(exercise) { %>
+                    <option value="<%= exercise.exerciseName %>">
+                    <%= exercise.exerciseName %>
+                    </option>
+                <% }); %>
+                </select> -->
+                <!-- store the number of exercises in the list -->
+                 <input type="hidden" name="numberOfExercises" value="<%= exerciseResults.length %>">
+                <!-- use dynamic div elements to display exercise names, and store
+                 the exercise id. checkboxes will be used to add an exercise.
+                 it's easier to transmit data and its a more user friendly experience. -->
+                <% exerciseResults.forEach((exercise, i) => { %>
+                <div class="exercise-box">
+                    <label>
+                    <input type="checkbox" name="selected<%=i%>" value="<%= exercise.id %>">
+                    <span class="checkbox-custom"></span>
+                    <p><%= exercise.exerciseName %></p>
+                    </label>
+                </div>
+                <% }) %>
+                <div class="btn-group">
+                    <button type="submit">Show Routine</button>
+                    <a href="/category" class="link-btn">Save & New Search</a>
+                    <a href="/resetAndNewSearch" class="link-btn">Reset & New Search</a>
+                </div>
+            </form>
+            </p>
+        </div>
+    </div>
+    <script>
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebar = document.getElementById("sidebar");
+
+        hamburgerBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        });
+    </script>
+</body>
+</html>

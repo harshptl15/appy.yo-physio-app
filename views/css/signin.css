@@ -1,0 +1,147 @@
+/*
+ * @Author Gregory Mah
+ * @Date 2025-06-10
+ * @class CST8319_320
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+    background-color: #ffffff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.formcontainer {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 40px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+h1, h3 {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #111;
+}
+
+.textfield label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.textfield input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.textfield input:focus {
+    border-color: #111;
+    outline: none;
+}
+
+button {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Container for side-by-side submit/reset buttons */
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* spacing between buttons */
+    margin-bottom: 10px;
+}
+
+.button-row button {
+    flex: 1; /* equal width buttons */
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+}
+
+#submit {
+    background-color: #111;
+    color: #fff;
+}
+
+#submit:hover {
+    background-color: #333;
+}
+
+#reset {
+    background-color: #f0f0f0;
+    color: #111;
+}
+
+#reset:hover {
+    background-color: #ddd;
+}
+
+/* Full width homepage button */
+#homebtn {
+    width: 100%;
+    margin: 20px 0;
+    padding: 12px 0;
+    background-color: #111;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+#homebtn:hover {
+    background-color: #333;
+}
+
+a {
+    color: #0071e3;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.checkbox {
+    margin-bottom: 20px;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}

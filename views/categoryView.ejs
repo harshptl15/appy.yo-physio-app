@@ -1,0 +1,67 @@
+<!--
+ @Author Gregory Mah
+ @Date 2025-07-14
+ @class CST8319_320
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physio</title>
+    <link rel="stylesheet" href="css/category.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+</head>
+<body>
+    <div class="overlay">
+        <button class="hamburger" id="hamburgerBtn">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
+                <a class="nav-link" href="/showRoutine">📅 Routines</a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+                <a class="nav-link" href="/about">ℹ️ About Us</a>
+                <a class="nav-link" href="/settings">⚙️ Settings</a>
+            </div>
+            <a href="/logout" class="action-btn logout-btn">Logout</a>
+
+        </aside>
+        <div class="form-card animate__animated animate__fadeIn">
+            <h1 class="animate__animated animate__bounceInUp">
+        <p>
+            What would you like to do today?
+            <!-- form calls the route to the post action for the categorySelectorController which saves the category
+            in the sesion then renders the muscle group view.-->
+            <form action="/categorySelect" method="post">
+                <br>
+                <label for="categoryInput">Workout Type:</label>
+                <!-- select is the selection list, it's name is how it transmits the selection to the controller -->
+                <select name="categoryInput" id="categoryInput">
+                    <!-- categories is the variable containing an array of objects with categoryName properties,
+                    category is the element of that iteration, selectedCategory is the value already selected
+                    as passed by the controller. -->
+                    <% categories.forEach(function(category) { %>
+                        <option value="<%= category.categoryName %>"
+                            <%= category.categoryName === selectedCategory ? 'selected' : '' %>>                        
+                            <%= category.categoryName %>
+                        </option>
+                    <% }); %>
+                </select>
+                <br>
+                <button type="submit">Submit</button>
+        </p>
+    <script>
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebar = document.getElementById("sidebar");
+
+        hamburgerBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        });
+    </script>
+</body>
+</html>

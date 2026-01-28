@@ -1,0 +1,119 @@
+<!--
+ @Author Gregory Mah
+ @Date 2025-07-14
+ @class CST8319_320
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routine</title>
+    <link rel="stylesheet" href="css/routine.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body>
+    <div class="overlay">
+        <button class="hamburger" id="hamburgerBtn">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
+                <a class="nav-link" href="/showRoutine">📅 Routines</a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+                <a class="nav-link" href="/about">ℹ️ About Us</a>
+                <a class="nav-link" href="/settings">⚙️ Settings</a>
+            </div>
+            <a href="/logout" class="action-btn logout-btn">Logout</a>
+        </aside>
+        <div class="routine-card animate__animated animate__zoomIn">
+            <h1 class="animate__animated animate__fadeInDown">Your Exercise Routine</h1>
+        <!-- exerciseRoutine is an array of objects with exerciseName properties passed from the controller.
+         so far this list does nothing other than dispaly the values passed by the array. -->
+         <!-- select is no longer good for the view, i am replacing it with divs -->
+            <!-- <select name="exerciseRoutine" id="exerciseRoutine" multiple>
+                <% exerciseRoutine.forEach(function(exercise) { %>
+                <option value="<%= exercise.exerciseName %>">
+                    <%= exercise.exerciseName %>
+                </option>
+                <% }); %>
+            </select>
+        </div> -->
+        <!-- div for showing a list of all exercises in routine. -->
+         <div class="routine-list">
+            <% exerciseRoutine.forEach((exercise, i) => { %>
+                <div class = "routine-box <%= exercise.goal ? 'completed' : '' %>">
+                    <p><%= exercise.exerciseName %></p>
+                    <!-- only render the following image if the exercise.goal is true 
+                    and therefore this exercise has been completed-->
+                    <% if (exercise.goal) { %>
+                    <span class="checkmark">✔</span>
+                        <p class="status-text">Completed</p>
+                    <% } %>
+                </div>
+            <% }) %>
+         </div>
+        <!-- div for buttons to control the entire routine -->
+        <div class="btn-group">
+            <form action="/restartRoutine" method="POST">
+                <button type="submit" class="btn btn-primary">Restart Routine</button>
+            </form>
+                <a href="/category" class="link-btn">🆕 New Search</a>
+                <a href="/resetAndNewSearch" class="link-btn">♻ Reset & New Search</a>
+                <a href="/getAndShowFavourites" class="link-btn">⭐ Show Favourites</a>
+        </div>
+         <!-- div for new search -->
+         <!-- if all exercises in the routine are completed, show a message -->
+
+        <% if (allExercisesCompleted) { %>
+        <div class="all-exercises-completed">
+            <p>🎉 All exercises in your routine are completed!</p>
+        </div>
+        <!-- div for buttons to control the current exercise in the routine. -->
+        <% } else { %>
+            <div class="current-exercise"></div>
+                <!-- display info on current exercise. -->
+                <h2>Now Training</h2>
+                <p><strong><%= currentExercise.exerciseName %></strong></p>
+                <ul>
+                    <li>💡 Tips: <%= currentExercise.tips %></li>
+                    <li>⚠ Common Mistakes: <%= currentExercise.commonMistakes %></li>
+                    <li>🏋️ Equipment: <%= currentExercise.equipment %></li>
+                    <li>📏 Sets/Reps: <%= currentExercise.sets %> × <%= currentExercise.reps %></li>
+                    <li>⏱ Tempo/Hold Time: <%= currentExercise.tempo %></li>
+                    <li>🎯 Skill Level: <%= currentExercise.skillLevel %></li>
+                    <li>   Position: <%= currentExercise.position %></li>
+                    <li>   Equipment: <%= currentExercise.equipment %></li>
+                    <li>   Image: <%= currentExercise.image %></li>
+                    <li>   Video: <%= currentExercise.video %><br></li>
+                </ul>
+                <div class="exercise-actions">
+                    <form action="/removeExerciseFromRoutine" method="POST">
+                        <input type="hidden" name="exerciseId" value="<%= currentExercise.id %>">
+                        <button type="submit" class="btn btn-danger">Remove Current Exercise</button>
+                    </form>
+                    <form action="/markExerciseAsFinished" method="POST">
+                        <input type="hidden" name="finishedExerciseId" value="<%= currentExercise.id %>">
+                        <button type="submit" class="btn btn-success">Mark Exercise as Finished</button>
+                    </form>
+                    <form action="/addExerciseToFavouritesThenShowFavourites" method="POST">
+                        <input type="hidden" name="favouriteExerciseId" value="<%= currentExercise.id %>">
+                        <button type="submit" class="btn btn-secondary">Add to Favourites</button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    <script>
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebar = document.getElementById("sidebar");
+
+        hamburgerBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        });
+    </script>
+</body>
+</html>

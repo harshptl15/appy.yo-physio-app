@@ -1,0 +1,95 @@
+<!--
+ * @Author Gregory Mah
+ * @Date 2025-06-10
+ * @class CST8319_320
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gregory Mah 041114855">
+  <link rel="stylesheet" href="css/signin.css">
+  <title>Sign in</title>
+</head>
+<body>
+  <button onclick="window.location.href='/dashboard'" id="homebtn">Go to homepage</button>
+  <div class="formcontainer">
+    <h1>Sign in to your account</h1>
+    <hr>
+    <form id="login-form">
+      <div class="textfield">
+        <label for="login">Username</label>
+        <input type="text" name="name" id="name" placeholder="Username" required>
+        <span class="error" id="nameError"></span>
+      </div>
+
+      <div class="textfield">
+        <label for="pass">Password</label>
+        <input type="password" name="password" id="password" placeholder="Password" required>
+        <span class="error" id="passwordError"></span>
+      </div>
+
+      <div class="button-row">
+        <button type="submit" id="submit">Sign‑In</button>
+        <button type="reset" id="reset">Reset</button>
+      </div>
+
+      <p>Don’t have an account? Click <a href="/register" id="regbtn">here</a> to sign up</p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear previous errors
+      document.getElementById('nameError').textContent = '';
+      document.getElementById('passwordError').textContent = '';
+
+      const name     = document.getElementById('name').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res  = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          // validation errors
+          if (data.errors) {
+            if (data.errors.name)     document.getElementById('nameError').textContent     = data.errors.name;
+            if (data.errors.password) document.getElementById('passwordError').textContent = data.errors.password;
+          }
+          // general error
+          else if (data.error) {
+            if (data.error.includes('User not found')) {
+              document.getElementById('nameError').textContent = data.error;
+            } else if (data.error.includes('Invalid credentials')) {
+              document.getElementById('passwordError').textContent = data.error;
+            } else {
+              alert(data.error);
+            }
+          }
+          return;
+        }
+
+        // On success, redirect based on 2FA requirement
+        if (data.twofaRequired) {
+          window.location.href = '/twofa/verify';
+        } else {
+          window.location.href = '/dashboard';
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert('Something went wrong. Please try again later.');
+      }
+    });
+  </script>
+</body>
+</html>

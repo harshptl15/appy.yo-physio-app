@@ -1,0 +1,112 @@
+<!--
+*view for registration page. Uses html to dispaly the registration form.
+*can also redirect to the login view.
+*/
+//TODO add html form for registration
+
+/*
+ * @Author Gregory Mah
+ * @Date 2025-06-10
+ * @class CST8319_320
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Gregory Mah 041114855">
+    <link rel="stylesheet" href="css/signin.css">
+    <title>Registration</title>
+</head>
+<body>
+    <button onclick="window.location.href='/dashboard'" id="homebtn">Go to homepage</button>
+
+    <div class="formcontainer">
+        <h1>Make your account</h1>
+        <hr>
+        <form action="/register" method="post" >
+
+            <div class="textfield">
+                <label for="email">Email Address</label>
+                <input type="text" name="email" id="email" placeholder="Email">
+                <span class="error" id="emailError"></span>
+            </div>
+
+            <div class="textfield">
+                <label for="login">Username</label>
+                <input type="text" name="name" id="name" placeholder="Username">
+                <span class="error" id="nameError"></span>
+            </div>
+
+            <div class="textfield">
+                <label for="pass">Password</label>
+                <input type="password" name="password" id="password" placeholder="Password">
+                <span class="error" id="passwordError"></span>
+            </div>
+        
+            <div class="textfield">
+                <label for="pass2">Re-type Password</label>
+                <input type="password" id="pass2" placeholder="Password">
+                <span class="error" id="confirmPasswordError"></span>
+            </div>
+
+            <div class="checkbox">
+                <input type="checkbox" name="terms" id="terms">
+                <label for="terms">I agree to the terms and conditions</label>
+                <span class="error" id="termsError"></span>
+            </div>
+            <div class="button-row">
+                <button type="submit" id="submit">Sign Up</button>
+                <button type="reset" id="reset">Reset</button>
+            </div>
+            <p>Have an account? Click <a href="/login" id="regbtn">here</a> to sign in</p>
+
+        </form>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear previous errors
+            ['nameError', 'emailError', 'passwordError', 'confirmPasswordError', 'termsError']
+                .forEach(id => document.getElementById(id).textContent = '');
+
+            const email = document.getElementById('email').value.trim();
+            const name = document.getElementById('name').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('pass2').value;
+            const termsAccepted = document.getElementById('terms').checked;
+
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, name, password, confirmPassword, termsAccepted })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    if (data.errors) {
+                        if (data.errors.name) document.getElementById('nameError').textContent = data.errors.name;
+                        if (data.errors.email) document.getElementById('emailError').textContent = data.errors.email;
+                        if (data.errors.password) document.getElementById('passwordError').textContent = data.errors.password;
+                        if (data.errors.confirmPassword) document.getElementById('confirmPasswordError').textContent = data.errors.confirmPassword;
+                        if (data.errors.terms) document.getElementById('termsError').textContent = data.errors.terms;
+                    } else if (data.error) {
+                        alert(data.error);
+                    } else {
+                        alert('Unknown error occurred');
+                    }
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (err) {
+                alert('Something went wrong. Please try again later.');
+            }
+        });
+    </script>
+
+</body>
+</html>

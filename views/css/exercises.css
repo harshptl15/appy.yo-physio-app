@@ -1,0 +1,267 @@
+/*
+ * @Author Gregory Mah
+ * @Date 2025-07-15
+ * @class CST8319_320
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+html, body {
+    font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #fff;
+}
+
+body {
+    background: url('/photos/exercise.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #ccc;
+}
+
+select {
+    width: 100%;
+    height: 180px;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: none;
+    background: #fff;
+    color: #111;
+    font-weight: 600;
+    margin-bottom: 30px;
+    appearance: none;
+    overflow: auto;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+}
+
+button {
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #fff;
+    color: #111;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #ddd;
+}
+
+.link-btn {
+    padding: 14px;
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+    text-align: center;
+}
+
+.link-btn:hover {
+    background: #fff;
+    color: #111;
+}
+
+@media (max-width: 500px) {
+  .form-card {
+    padding: 30px 20px;
+  }
+
+  select {
+    height: 140px;
+  }
+}
+.exercise-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  transition: transform 0.2s, background 0.3s;
+  cursor: pointer;
+}
+
+.exercise-box:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.exercise-box input[type="checkbox"] {
+  display: none; /* hide the native checkbox */
+}
+
+.exercise-box p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: left;
+  flex: 1;
+  color: #fff;
+}
+
+/* Custom styled checkbox */
+.exercise-box label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.checkbox-custom {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  margin-right: 15px;
+  display: inline-block;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.exercise-box input[type="checkbox"]:checked + .checkbox-custom {
+  background: #fff;
+  transform: scale(1.1);
+}
+
+.exercise-box input[type="checkbox"]:checked + .checkbox-custom::after {
+  content: "✔";
+  color: #111;
+  font-size: 1rem;
+  position: absolute;
+  left: 4px;
+  top: 0;
+}
+
+.btn-group {
+  margin-top: 20px;
+}
+.hamburger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1100; /* above sidebar */
+  padding: 0px 12px;
+  border-radius: 6px;
+}
+
+/* Sidebar styling */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px; /* hidden initially */
+  width: 250px;
+  height: 85%;
+  background-color: #111;
+  padding: 80px 20px 20px; /* extra top padding so links don't hide behind hamburger */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto; /* enable scrolling if needed */
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar h2 {
+  color: #fff;
+  font-size: 1.4rem;
+  margin-bottom: 30px;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  margin-bottom: 20px;
+  display: block;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #aaa;
+}
+
+/* Logout button always at bottom */
+.action-btn {
+  background-color: #fff;
+  color: #111;
+  padding: 12px 20px;
+  border: none;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  text-align: center;
+  margin-top: auto; /* push logout to bottom */
+}
+
+.action-btn:hover {
+  background-color: #ddd;
+}

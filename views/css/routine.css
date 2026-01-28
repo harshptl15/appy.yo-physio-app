@@ -1,0 +1,267 @@
+/*
+ * @Author Gregory Mah
+ * @Date 2025-07-15
+ * @class CST8319_320
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+html, body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+body {
+  background: url('/photos/routine.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.85);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.routine-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 40px;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 30px;
+}
+
+select {
+  width: 100%;
+  height: 200px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111;
+  background: #fff;
+  border: none;
+  border-radius: 12px;
+  appearance: none;
+  overflow-y: auto;
+}
+
+@media (max-width: 500px) {
+  .routine-card {
+    padding: 30px 20px;
+  }
+
+  select {
+    height: 160px;
+  }
+}
+.routine-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.routine-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s, background 0.3s;
+}
+
+.routine-box:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.routine-box.completed {
+  background: rgba(50, 205, 50, 0.3);
+  border: 2px solid #32cd32;
+}
+
+.routine-box .checkmark {
+  font-size: 1.5rem;
+  color: #32cd32;
+  display: block;
+  margin-top: 10px;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  color: #32cd32;
+  font-weight: bold;
+}
+
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.btn, .link-btn {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary { background: #fff; color: #111; }
+.btn-primary:hover { background: #ddd; }
+
+.btn-danger { background: #e63946; color: #fff; }
+.btn-danger:hover { background: #c92c3a; }
+
+.btn-success { background: #32cd32; color: #fff; }
+.btn-success:hover { background: #28a428; }
+
+.btn-secondary { background: #444; color: #fff; }
+.btn-secondary:hover { background: #666; }
+
+.link-btn {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  text-decoration: none;
+}
+
+.link-btn:hover {
+  background: #fff;
+  color: #111;
+}
+
+.current-exercise {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: left;
+}
+
+.current-exercise h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.current-exercise ul {
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+}
+
+.current-exercise ul li {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #ccc;
+}
+
+.exercise-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 15px;
+}
+.hamburger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1100; /* above sidebar */
+  padding: 0px 12px;
+  border-radius: 6px;
+}
+
+/* Sidebar styling */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px; /* hidden initially */
+  width: 250px;
+  height: 85%;
+  background-color: #111;
+  padding: 80px 20px 20px; /* extra top padding so links don't hide behind hamburger */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto; /* enable scrolling if needed */
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar h2 {
+  color: #fff;
+  font-size: 1.4rem;
+  margin-bottom: 30px;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  margin-bottom: 20px;
+  display: block;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #aaa;
+}
+
+/* Logout button always at bottom */
+.action-btn {
+  background-color: #fff;
+  color: #111;
+  padding: 12px 20px;
+  border: none;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  text-align: center;
+  margin-top: auto; /* push logout to bottom */
+}
+
+.action-btn:hover {
+  background-color: #ddd;
+}

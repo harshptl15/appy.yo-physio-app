@@ -1,0 +1,68 @@
+<!--
+ @Author Gregory Mah
+ @Date 2025-07-14
+ @class CST8319_320
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Area</title>
+    <link rel="stylesheet" href="css/musclegroup.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body>
+    <div class="overlay">
+        <button class="hamburger" id="hamburgerBtn">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
+                <a class="nav-link" href="/showRoutine">📅 Routines</a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+                <a class="nav-link" href="/about">ℹ️ About Us</a>
+                <a class="nav-link" href="/settings">⚙️ Settings</a>
+            </div>
+            <a href="/logout" class="action-btn logout-btn">Logout</a>
+
+        </aside>
+        <div class="form-card animate__animated animate__zoomIn">
+            <h1 class="animate__animated animate__fadeInDown">Focus Area</h1>
+            <!-- /muscleGroupSelect is the route to the muscleGroupSelectorController that selects the muscle 
+            group and renders the listOfExerciseResultsView. -->
+            <form action="/muscleGroupSelect" method="post">
+                <div class="muscle-grid">  
+                    <!-- name="muscleGroupInput" is how the muscleGroupSelectorController is passed it's muscle group string             -->
+                        <!-- muscleGroups is the array of objects passesd from the muscleGroupSelectorController
+                        muscleGroup is the current iteration in the loop
+                        selected muscle is the passed string value representing the current selected muscleGroup -->
+                        <% muscleGroups.forEach(function(muscleGroup) { %>
+                        <label class="muscle-tile">
+                            <input
+                            type="radio"
+                            name="muscleGroupInput"
+                            value="<%= muscleGroup.muscleName %>"
+                            <%= muscleGroup.muscleName === selectedMuscle ? 'checked' : '' %>
+                            />
+                            <span><%= muscleGroup.muscleName %></span>
+                        </label>
+                        <% }) %>
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebar = document.getElementById("sidebar");
+
+        hamburgerBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        });
+    </script>
+</body>
+</html>

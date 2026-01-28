@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favourites</title>
+    <link rel="stylesheet" href="css/favourites.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay">
+        <button class="hamburger" id="hamburgerBtn">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
+                <a class="nav-link" href="/showRoutine">📅 Routines</a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+                <a class="nav-link" href="/about">ℹ️ About Us</a>
+                <a class="nav-link" href="/settings">⚙️ Settings</a>
+            </div>
+            <a href="/logout" class="action-btn logout-btn">Logout</a>
+        </aside>
+        <div class="form-card animate__animated animate__fadeInUp">
+            <h1 class="animate__animated animate__fadeInDown">Your Favourite Exercises</h1>
+            <form action="/submitFavouritesForm" method="POST">
+                <input type="hidden" name="numberOfFavourites" value="<%= favouriteExercises.length %>">
+                <div class="exercise-list">
+                    <% favouriteExercises.forEach((exercise, i) => { %>
+                        <div class="favourite-exercise-name">
+                            <p><%= exercise.exerciseName %></p>
+                        </div>
+                        <div class="favourite-exercise-block">
+
+                            <div class="checkbox-group">
+                                <label class="checkbox-card">
+                                    <input type="checkbox" name="addFavToRoutine<%= i %>" value="<%= exercise.id %>">
+                                    <span>Add to Routine:</span>
+                                </label>
+                                <label class="checkbox-card remove">
+                                    <input type="checkbox" name="removeFromFavs<%= i %>" value="<%= exercise.id %>">
+                                    <span>Remove from Favourites:</span>
+                                </label> 
+                            </div>
+                        </div>
+
+                    <% }) %>
+                </div>
+            <button type="submit" class="action-btn">Save Changes</button>
+            </form>
+            <a href="showRoutine" class="secondary-btn">Show Routine</a>
+        </div>
+    </div>
+    <script>
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebar = document.getElementById("sidebar");
+
+        hamburgerBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        });
+    </script>
+</body>
+</html>

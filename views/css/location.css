@@ -1,0 +1,171 @@
+/*
+ * @Author Gregory Mah
+ * @Date 2025-07-15
+ * @class CST8319_320
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: url("/photos/Location.jpg") no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.75);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.form-card h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #ccc;
+}
+
+select {
+    font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    color: #111;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    appearance: none;         
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #111;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #ddd;
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 30px 20px;
+  }
+}
+/* Hamburger Button */
+.hamburger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1100; /* above sidebar */
+  padding: 0px 12px;
+  border-radius: 6px;
+}
+
+/* Sidebar styling */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px; /* hidden initially */
+  width: 250px;
+  height: 85%;
+  background-color: #111;
+  padding: 80px 20px 20px; /* extra top padding so links don't hide behind hamburger */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto; /* enable scrolling if needed */
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar h2 {
+  color: #fff;
+  font-size: 1.4rem;
+  margin-bottom: 30px;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  margin-bottom: 20px;
+  display: block;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #aaa;
+}
+
+/* Logout button always at bottom */
+.action-btn {
+  background-color: #fff;
+  color: #111;
+  padding: 12px 20px;
+  border: none;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  text-align: center;
+  margin-top: auto; /* push logout to bottom */
+}
+
+.action-btn:hover {
+  background-color: #ddd;
+}
