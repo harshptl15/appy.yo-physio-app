@@ -18,8 +18,8 @@ CREATE TABLE `Exercise` (
     equipment_needed TEXT NULL,
     skill_level VARCHAR(45) NULL,
     tempo VARCHAR(45) NULL,
-    sets INT NULL,
-    reps VARCHAR(45) NULL,
+    `sets` INT NULL,
+    `reps` VARCHAR(45) NULL,
     hold_time_sec INT NULL,
     rest_time_sec INT NULL,
     CONSTRAINT chk_is_gym_only_bool CHECK (is_gym_only IN (0, 1))
