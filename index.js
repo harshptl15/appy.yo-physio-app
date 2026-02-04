@@ -16,6 +16,10 @@ const userRoutes = require('./routes/userRoutes');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 
 //used for parsing application/json
 app.use(session({
@@ -39,7 +43,12 @@ app.get('/', (req, res) => {
     res.redirect('/register');
 });
 
+app.use((err, req, res, next) => {
+  console.error("🔥 ERROR:", err);
+  res.status(500).json({ error: err.message || "Server error" });
+});
+
 //listen to port 3000
-app.listen(3000, () => {
-    console.log('server running on port 3000');
+app.listen(3001, () => {
+    console.log('server running on port 3001');
 })

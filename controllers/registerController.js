@@ -59,8 +59,12 @@ const register = async (req, res) => {
     res.status(200).json({ success: true });
   } catch (err) {
     console.error('Registration error:', err);
-    res.status(500).json({ error: 'Server error. Please try again later.' });
+    res.status(500).json({
+    error: err.message,
+    code: err.code,
+    sqlMessage: err.sqlMessage
+  });
   }
 };
 
-module.exports = { register };
+module.exports = {register};

@@ -20,17 +20,42 @@ const {convertMuscleGroupAndCategoryInSessionToArray, resetMuscleGroupAndCategor
 const exerciseRoutineController = require('../controllers/exerciseRoutineController'); //import exercise routine controller
 const favouriteExercisesController = require('../controllers/favouriteExercisesController'); //import favourite exercises controller
 const twofaCtrl     = require('../controllers/twofaController');                //import 2FA controller
+const { createRateLimiter } = require('../middleware/rateLimit');                //import rate limiter
+
+const twofaSetupLimiter = createRateLimiter({
+    windowMs: 5 * 60 * 1000,
+    max: 5,
+    keyGenerator: (req) => `twofa_setup:${req.user?.id || req.ip}`,
+    onLimit: (req, res) => res.redirect('/twofa/setup?error=rate')
+});
+
+const twofaVerifyLimiter = createRateLimiter({
+    windowMs: 5 * 60 * 1000,
+    max: 5,
+    keyGenerator: (req) => `twofa_verify:${req.session.temp_twofa_user?.id || req.ip}`,
+    onLimit: (req, res) =>
+        res.status(429).render('twofa-verify', { error: 'Too many attempts. Try again in a few minutes.' })
+});
+
+const twofaDisableLimiter = createRateLimiter({
+    windowMs: 10 * 60 * 1000,
+    max: 5,
+    keyGenerator: (req) => `twofa_disable:${req.user?.id || req.ip}`,
+    onLimit: (req, res) =>
+        res.status(429).render('twofa-disable', { error: 'Too many attempts. Try again later.' })
+});
 
 // — Setup 2FA —
 router.get( '/twofa/setup',  checkAuthenticated, twofaCtrl.getTwofaSetup);
-router.post('/twofa/setup',  checkAuthenticated, twofaCtrl.postTwofaSetup);
+router.post('/twofa/setup',  checkAuthenticated, twofaSetupLimiter, twofaCtrl.postTwofaSetup);
 
 // — Verify 2FA at login —
 router.get( '/twofa/verify', twofaCtrl.getTwofaVerify);
-router.post('/twofa/verify', twofaCtrl.postTwofaVerify);
+router.post('/twofa/verify', twofaVerifyLimiter, twofaCtrl.postTwofaVerify);
 
 // — Disable 2FA —
-router.get( '/twofa/disable', checkAuthenticated, twofaCtrl.disableTwofa);
+router.get( '/twofa/disable', checkAuthenticated, twofaCtrl.getTwofaDisable);
+router.post('/twofa/disable', checkAuthenticated, twofaDisableLimiter, twofaCtrl.postTwofaDisable);
 
 /**
  * route to register view.

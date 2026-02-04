@@ -52,19 +52,5 @@ This is the dashboard, landing page after login. Needs lots of work. Most things
       </div>
     </main>
   </div>
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const disable2faLink = document.querySelector('a[href="/twofa/disable"]');
-
-    if (disable2faLink) {
-      disable2faLink.addEventListener("click", function (event) {
-        const confirmed = confirm("Are you sure you want to disable Two-Factor Authentication?");
-        if (!confirmed) {
-          event.preventDefault(); // Stop the navigation
-        }
-      });
-    }
-  });
-</script>
 </body>
 </html>

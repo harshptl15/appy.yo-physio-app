@@ -5,41 +5,135 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Two‑Factor Authentication Setup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="/css/setup2fa.css">
 </head>
-<body>
+<body class="auth-bg">
   <div class="overlay">
-    <form class="form-card animate__animated animate__fadeInDown" action="/twofa/setup" method="POST">
-      <h1>Set Up Two‑Factor Authentication</h1>
+    <div class="form-card animate__animated animate__fadeInDown <%= (typeof success !== 'undefined' && success) ? 'success-mode' : '' %>">
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="success-state">
+          <div class="success-icon">✓</div>
+          <h1>2FA Enabled</h1>
+          <p class="helper-text">Your account is secure.</p>
+        </div>
+      <% } else { %>
+      <form action="/twofa/setup" method="POST">
+        <h1>Secure Your Account</h1>
+        <p class="helper-text">Add an extra layer of protection before continuing your workouts.</p>
 
-      <% if (typeof error !== 'undefined' && error) { %>
-        <div class="error-msg"><%= error %></div>
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="error-msg"><%= error %></div>
+        <% } %>
+
+        <div class="qr-box">
+          <% if (qrCodeUrl) { %>
+            <img src="<%= qrCodeUrl %>" alt="2FA QR Code">
+          <% } else { %>
+            <div class="qr-fallback">QR unavailable</div>
+          <% } %>
+        </div>
+        <div class="helper-text helper-sub">Scan with Google Authenticator, Authy, or Microsoft Authenticator.</div>
+
+        <div class="manual-key">
+          <div class="manual-key-label">Can’t scan? Enter this key manually:</div>
+          <div class="manual-key-row">
+            <code id="manualKey"><%= typeof manualKey !== 'undefined' ? manualKey : '' %></code>
+            <button type="button" class="copy-btn" data-copy="#manualKey">Copy</button>
+          </div>
+        </div>
+
+        <label for="token">Enter the 6‑digit code from your app</label>
+        <input type="hidden" id="token" name="token" required>
+        <div class="code-inputs" aria-describedby="token-help">
+          <% for (let i = 1; i <= 6; i++) { %>
+            <input
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              pattern="[0-9]"
+              class="code-box"
+              aria-label="Digit <%= i %>"
+              <%= i === 1 ? 'autofocus autocomplete="one-time-code"' : '' %>
+            >
+          <% } %>
+        </div>
+        <div id="token-help" class="helper-text helper-sub">Codes refresh every 30 seconds.</div>
+
+        <div class="actions">
+          <button id="submitBtn" class="primary-btn" type="submit" disabled>Enable 2FA</button>
+          <a class="secondary-btn" href="/dashboard">Not now</a>
+        </div>
+        <div class="footer-note">You can disable 2FA anytime in Settings.</div>
+
+      </form>
       <% } %>
-
-      <p>Scan this QR code with Google Authenticator:</p>
-      <div class="qr-box">
-        <img src="<%= qrCodeUrl %>" alt="2FA QR Code">
-      </div>
-
-      <label for="token">6‑digit code</label>
-      <input
-        type="text"
-        id="token"
-        name="token"
-        class="form-control"
-        placeholder="123456"
-        pattern="[0-9]{6}"
-        maxlength="6"
-        inputmode="numeric"
-        required
-        autofocus
-      >
-
-      <button type="submit">Enable 2FA</button>
-
-    </form>
+    </div>
   </div>
+  <script>
+    (function () {
+      const hidden = document.getElementById('token');
+      const btn = document.getElementById('submitBtn');
+      const copyBtn = document.querySelector('.copy-btn');
+      const boxes = Array.from(document.querySelectorAll('.code-box'));
+      const setDisabled = () => {
+        if (!hidden || !btn) return;
+        hidden.value = boxes.map((b) => b.value).join('');
+        btn.disabled = hidden.value.length !== 6;
+      };
+      boxes.forEach((box, idx) => {
+        box.addEventListener('input', (e) => {
+          const value = e.target.value.replace(/[^\d]/g, '');
+          e.target.value = value;
+          if (value && idx < boxes.length - 1) {
+            boxes[idx + 1].focus();
+          }
+          setDisabled();
+        });
+        box.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !box.value && idx > 0) {
+            boxes[idx - 1].focus();
+          }
+        });
+      });
+      if (boxes[0]) {
+        boxes[0].addEventListener('paste', (e) => {
+          const text = (e.clipboardData || window.clipboardData).getData('text');
+          const digits = text.replace(/[^\d]/g, '').slice(0, 6).split('');
+          if (digits.length) {
+            e.preventDefault();
+            digits.forEach((d, i) => {
+              if (boxes[i]) boxes[i].value = d;
+            });
+            boxes[Math.min(digits.length, 5)].focus();
+            setDisabled();
+          }
+        });
+      }
+      setDisabled();
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          const target = document.querySelector(copyBtn.dataset.copy);
+          if (!target) return;
+          try {
+            await navigator.clipboard.writeText(target.textContent.trim());
+            copyBtn.textContent = 'Copied';
+            setTimeout(() => (copyBtn.textContent = 'Copy'), 1200);
+          } catch (_) {
+            copyBtn.textContent = 'Copy failed';
+            setTimeout(() => (copyBtn.textContent = 'Copy'), 1200);
+          }
+        });
+      }
+
+      const success = document.querySelector('.success-state');
+      if (success) {
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1200);
+      }
+    })();
+  </script>
 </body>
 </html>
