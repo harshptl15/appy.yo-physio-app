@@ -175,3 +175,64 @@ body {
     margin-bottom: 40px;
     max-width: 600px;
 }
+
+html[data-theme="light"] body {
+    background: linear-gradient(180deg, #f7f9fc 0%, #e9eef7 100%);
+    color: #111827;
+}
+
+html[data-theme="light"] .overlay {
+    background-color: rgba(255, 255, 255, 0.82);
+}
+
+html[data-theme="light"] .sidebar {
+    background-color: #ffffff;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+}
+
+html[data-theme="light"] .sidebar h2,
+html[data-theme="light"] .nav-link {
+    color: #111827;
+}
+
+html[data-theme="light"] .nav-link:hover {
+    color: #475569;
+}
+
+html[data-theme="light"] .main-content h1 {
+    color: #111827;
+}
+
+html[data-theme="light"] .stat-box {
+    background-color: rgba(255, 255, 255, 0.94);
+    border: 1px solid #d9e1ef;
+}
+
+html[data-theme="light"] .stat-box h2 {
+    color: #111827;
+}
+
+html[data-theme="light"] .stat-box p,
+html[data-theme="light"] .quote {
+    color: #4b5563;
+}
+
+html[data-theme="light"] .action-btn {
+    background-color: #111827;
+    color: #ffffff;
+}
+
+html[data-theme="light"] .action-btn:hover {
+    background-color: #1f2937;
+}
+
+html[data-theme="light"] .secondary {
+    background-color: transparent;
+    border: 2px solid #111827;
+    color: #111827;
+}
+
+html[data-theme="light"] .secondary:hover {
+    background-color: #111827;
+    color: #ffffff;
+}

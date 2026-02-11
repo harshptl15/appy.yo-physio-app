@@ -20,6 +20,7 @@ const {convertMuscleGroupAndCategoryInSessionToArray, resetMuscleGroupAndCategor
 const exerciseRoutineController = require('../controllers/exerciseRoutineController'); //import exercise routine controller
 const favouriteExercisesController = require('../controllers/favouriteExercisesController'); //import favourite exercises controller
 const twofaCtrl     = require('../controllers/twofaController');                //import 2FA controller
+const settingsController = require('../controllers/settingsController');         //import settings controller
 const { createRateLimiter } = require('../middleware/rateLimit');                //import rate limiter
 
 const twofaSetupLimiter = createRateLimiter({
@@ -154,6 +155,8 @@ router.get('/getAndShowFavourites', checkAuthenticated, favouriteExercisesContro
 router.post('/submitFavouritesForm', checkAuthenticated, favouriteExercisesController.submitFavouritesForm);
 
 router.post('/addExerciseToFavouritesThenShowFavourites', checkAuthenticated, favouriteExercisesController.addExerciseToFavouritesThenShowFavourites);
+
+router.get('/settings', checkAuthenticated, settingsController.showSettingsView);
 
 
 module.exports = router; //export router instance

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhysioApp Settings</title>
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/settings.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+    <div class="overlay">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
+        <div class="sidebar-backdrop hidden" id="sidebarBackdrop" aria-hidden="true"></div>
+
+        <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+            <div>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/muscleGroup">Exercises</a>
+                <a class="nav-link" href="/showRoutine">Routines</a>
+                <a class="nav-link" href="/getAndShowFavourites">Favourites</a>
+                <a class="nav-link" href="/settings">Settings</a>
+            </div>
+            <a href="/logout" class="action-btn logout-btn">Logout</a>
+        </aside>
+
+        <main class="settings-layout">
+            <header class="page-header">
+                <h1>Settings</h1>
+                <p>Manage your profile, workout preferences, notifications, and account settings.</p>
+                <div class="page-actions">
+                    <button id="resetSettingsBtn" class="secondary-btn" type="button">Reset Local Settings</button>
+                    <span id="saveStatus" class="save-status" aria-live="polite"></span>
+                </div>
+            </header>
+
+            <section class="settings-card" aria-labelledby="profile-heading">
+                <h2 id="profile-heading">Profile &amp; Health Information</h2>
+                <button class="row-action editable" data-field="name" data-label="Name" aria-label="Edit name">
+                    <span class="row-left"><span class="icon" aria-hidden="true">P</span>Name</span>
+                    <span class="row-right" id="value-name"><%= user && user.username ? user.username : 'Alex Morgan' %></span>
+                </button>
+                <button class="row-action editable" data-field="age" data-label="Age" aria-label="Edit age">
+                    <span class="row-left"><span class="icon" aria-hidden="true">A</span>Age</span>
+                    <span class="row-right" id="value-age">34</span>
+                </button>
+                <button class="row-action editable" data-field="height" data-label="Height" aria-label="Edit height">
+                    <span class="row-left"><span class="icon" aria-hidden="true">H</span>Height</span>
+                    <span class="row-right" id="value-height">178 cm</span>
+                </button>
+                <button class="row-action editable" data-field="weight" data-label="Weight" aria-label="Edit weight">
+                    <span class="row-left"><span class="icon" aria-hidden="true">W</span>Weight</span>
+                    <span class="row-right" id="value-weight">74 kg</span>
+                </button>
+                <button class="row-action editable" data-field="injuryFocus" data-label="Injury / Condition focus" aria-label="Edit injury or condition focus">
+                    <span class="row-left"><span class="icon" aria-hidden="true">I</span>Injury / Condition focus</span>
+                    <span class="row-right" id="value-injuryFocus">Lower back pain</span>
+                </button>
+                <button class="row-action editable" data-field="rehabLevel" data-label="Rehab level" aria-label="Edit rehab level">
+                    <span class="row-left"><span class="icon" aria-hidden="true">R</span>Rehab level</span>
+                    <span class="row-right" id="value-rehabLevel">Intermediate</span>
+                </button>
+            </section>
+
+            <section class="settings-card" aria-labelledby="workout-heading">
+                <h2 id="workout-heading">Workout &amp; Recovery Preferences</h2>
+                <div class="row-action row-static">
+                    <span class="row-left"><span class="icon" aria-hidden="true">T</span>Preferred workout duration</span>
+                    <div class="segment-control" role="radiogroup" aria-label="Preferred workout duration">
+                        <button class="duration-btn" data-duration="15" role="radio" aria-checked="false">15</button>
+                        <button class="duration-btn active" data-duration="30" role="radio" aria-checked="true">30</button>
+                        <button class="duration-btn" data-duration="45" role="radio" aria-checked="false">45</button>
+                    </div>
+                </div>
+
+                <label class="row-action toggle-row" for="recoveryReminders">
+                    <span class="row-left"><span class="icon" aria-hidden="true">D</span>Recovery day reminders</span>
+                    <span class="switch">
+                        <input type="checkbox" id="recoveryReminders" checked>
+                        <span class="slider"></span>
+                    </span>
+                </label>
+
+                <label class="row-action toggle-row" for="painFeedback">
+                    <span class="row-left"><span class="icon" aria-hidden="true">F</span>Pain feedback after workouts</span>
+                    <span class="switch">
+                        <input type="checkbox" id="painFeedback" checked>
+                        <span class="slider"></span>
+                    </span>
+                </label>
+
+                <label class="row-action toggle-row" for="autoAdjustDifficulty">
+                    <span class="row-left"><span class="icon" aria-hidden="true">U</span>Auto-adjust difficulty</span>
+                    <span class="switch">
+                        <input type="checkbox" id="autoAdjustDifficulty" checked>
+                        <span class="slider"></span>
+                    </span>
+                </label>
+
+                <label class="row-action toggle-row" for="conservativeMode">
+                    <span class="row-left"><span class="icon" aria-hidden="true">C</span>Conservative progression mode</span>
+                    <span class="switch">
+                        <input type="checkbox" id="conservativeMode">
+                        <span class="slider"></span>
+                    </span>
+                </label>
+            </section>
+
+            <section class="settings-card" aria-labelledby="notifications-heading">
+                <h2 id="notifications-heading">Notifications</h2>
+                <label class="row-action toggle-row" for="workoutReminders">
+                    <span class="row-left"><span class="icon" aria-hidden="true">W</span>Workout reminders</span>
+                    <span class="switch">
+                        <input type="checkbox" id="workoutReminders" checked>
+                        <span class="slider"></span>
+                    </span>
+                </label>
+                <label class="row-action toggle-row" for="restDayReminders">
+                    <span class="row-left"><span class="icon" aria-hidden="true">R</span>Rest day reminders</span>
+                    <span class="switch">
+                        <input type="checkbox" id="restDayReminders" checked>
+                        <span class="slider"></span>
+                    </span>
+                </label>
+                <label class="row-action toggle-row" for="progressCheckins">
+                    <span class="row-left"><span class="icon" aria-hidden="true">P</span>Progress check-ins</span>
+                    <span class="switch">
+                        <input type="checkbox" id="progressCheckins">
+                        <span class="slider"></span>
+                    </span>
+                </label>
+                <label class="row-action toggle-row" for="routineRecommendations">
+                    <span class="row-left"><span class="icon" aria-hidden="true">N</span>Routine recommendations</span>
+                    <span class="switch">
+                        <input type="checkbox" id="routineRecommendations" checked>
+                        <span class="slider"></span>
+                    </span>
+                </label>
+            </section>
+
+            <section class="settings-card" aria-labelledby="security-heading">
+                <h2 id="security-heading">Security &amp; Privacy</h2>
+                <button class="row-action action-item" data-action="Change password">
+                    <span class="row-left"><span class="icon" aria-hidden="true">S</span>Change password</span>
+                    <span class="row-right">Open</span>
+                </button>
+
+                <label class="row-action toggle-row" for="twoFactorEnabled">
+                    <span class="row-left"><span class="icon" aria-hidden="true">2</span>Enable Two-Factor Authentication</span>
+                    <span class="switch">
+                        <input type="checkbox" id="twoFactorEnabled">
+                        <span class="slider"></span>
+                    </span>
+                </label>
+
+                <button class="row-action action-item" data-action="View active sessions">
+                    <span class="row-left"><span class="icon" aria-hidden="true">V</span>View active sessions</span>
+                    <span class="row-right">Open</span>
+                </button>
+                <button class="row-action action-item" data-action="Export or delete data">
+                    <span class="row-left"><span class="icon" aria-hidden="true">E</span>Export / delete data</span>
+                    <span class="row-right">Open</span>
+                </button>
+
+                <p class="support-copy">You can update your account protection settings anytime.</p>
+            </section>
+
+            <section class="settings-card" aria-labelledby="app-heading">
+                <h2 id="app-heading">App Preferences</h2>
+                <div class="row-action row-static">
+                    <label class="row-left" for="themeSelect"><span class="icon" aria-hidden="true">M</span>Theme</label>
+                    <select id="themeSelect" class="select-input" aria-label="Theme selector">
+                        <option value="System">System</option>
+                        <option value="Light">Light</option>
+                        <option value="Dark">Dark</option>
+                    </select>
+                </div>
+
+                <div class="row-action row-static">
+                    <label class="row-left" for="languageSelect"><span class="icon" aria-hidden="true">L</span>Language</label>
+                    <select id="languageSelect" class="select-input" aria-label="Language selector">
+                        <option value="English">English</option>
+                        <option value="French">French</option>
+                        <option value="Spanish">Spanish</option>
+                    </select>
+                </div>
+
+                <div class="row-action row-static">
+                    <label class="row-left" for="unitsSelect"><span class="icon" aria-hidden="true">U</span>Units</label>
+                    <select id="unitsSelect" class="select-input" aria-label="Units selector">
+                        <option value="Metric">Metric</option>
+                        <option value="Imperial">Imperial</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="settings-card" aria-labelledby="support-heading">
+                <h2 id="support-heading">Support &amp; About</h2>
+                <button class="row-action action-item" data-action="Help and FAQs">
+                    <span class="row-left"><span class="icon" aria-hidden="true">H</span>Help &amp; FAQs</span>
+                    <span class="row-right">Open</span>
+                </button>
+                <button class="row-action action-item" data-action="Contact support">
+                    <span class="row-left"><span class="icon" aria-hidden="true">C</span>Contact support</span>
+                    <span class="row-right">Open</span>
+                </button>
+                <button class="row-action action-item" data-action="About PhysioApp">
+                    <span class="row-left"><span class="icon" aria-hidden="true">A</span>About PhysioApp</span>
+                    <span class="row-right">Open</span>
+                </button>
+                <button class="row-action action-item" data-action="Terms of Service">
+                    <span class="row-left"><span class="icon" aria-hidden="true">T</span>Terms of Service</span>
+                    <span class="row-right">Open</span>
+                </button>
+                <button class="row-action action-item" data-action="Privacy Policy">
+                    <span class="row-left"><span class="icon" aria-hidden="true">P</span>Privacy Policy</span>
+                    <span class="row-right">Open</span>
+                </button>
+                <p class="disclaimer">This app does not replace medical advice.</p>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal-backdrop hidden" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+        <div class="modal-content">
+            <h3 id="editTitle">Edit value</h3>
+            <label id="editLabel" for="editInput">Value</label>
+            <input id="editInput" class="modal-input" type="text"/>
+            <select id="editSelect" class="modal-input hidden" aria-label="Edit selection"></select>
+            <div class="modal-actions">
+                <button id="cancelEditBtn" class="secondary-btn" type="button">Cancel</button>
+                <button id="saveEditBtn" class="primary-btn" type="button">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebar = document.getElementById("sidebar");
+        const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+
+        function setSidebarOpen(open) {
+            sidebar.classList.toggle("open", open);
+            sidebarBackdrop.classList.toggle("hidden", !open);
+            hamburgerBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        hamburgerBtn.addEventListener("click", () => {
+            setSidebarOpen(!sidebar.classList.contains("open"));
+        });
+
+        sidebarBackdrop.addEventListener("click", () => setSidebarOpen(false));
+        sidebar.querySelectorAll(".nav-link").forEach((link) => {
+            link.addEventListener("click", () => setSidebarOpen(false));
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                if (!modal.classList.contains("hidden")) {
+                    closeEditModal();
+                }
+                if (sidebar.classList.contains("open")) {
+                    setSidebarOpen(false);
+                }
+            }
+        });
+
+        // Placeholder local state handlers for settings UI. No backend calls in this page.
+        const initialProfileName = <%- JSON.stringify(user && user.username ? user.username : "Alex Morgan") %>;
+        const userStorageKey = "physioapp_settings_" + initialProfileName.toLowerCase().replace(/[^a-z0-9]/g, "_");
+        const saveStatus = document.getElementById("saveStatus");
+        const rehabLevels = ["Beginner", "Intermediate", "Advanced"];
+        const injuryFocusOptions = [
+            "Lower back pain",
+            "Knee rehabilitation",
+            "Shoulder mobility",
+            "Postural correction",
+            "General recovery"
+        ];
+        const heightOptions = Array.from({ length: 81 }, (_, i) => `${140 + i} cm`);
+
+        const state = {
+            profile: {
+                name: initialProfileName,
+                age: "34",
+                height: "178 cm",
+                weight: "74 kg",
+                injuryFocus: "Lower back pain",
+                rehabLevel: "Intermediate"
+            },
+            workoutRecovery: {
+                preferredDuration: 30,
+                recoveryDayReminders: true,
+                painFeedbackAfterWorkouts: true,
+                autoAdjustDifficulty: true,
+                conservativeProgressionMode: false
+            },
+            notifications: {
+                workoutReminders: true,
+                restDayReminders: true,
+                progressCheckIns: false,
+                routineRecommendations: true
+            },
+            appPreferences: {
+                theme: "System",
+                language: "English",
+                units: "Metric"
+            },
+            security: {
+                twoFactorEnabled: false
+            }
+        };
+
+        const modal = document.getElementById("editModal");
+        const editInput = document.getElementById("editInput");
+        const editSelect = document.getElementById("editSelect");
+        const editLabel = document.getElementById("editLabel");
+        const editTitle = document.getElementById("editTitle");
+        let editingField = null;
+        let saveStatusTimer = null;
+
+        function preferenceToLabel(preference) {
+            const value = String(preference || "").toLowerCase();
+            if (value === "light") return "Light";
+            if (value === "dark") return "Dark";
+            return "System";
+        }
+
+        function labelToPreference(label) {
+            const value = String(label || "").toLowerCase();
+            if (value === "light") return "light";
+            if (value === "dark") return "dark";
+            return "system";
+        }
+
+        function syncThemeStateFromPreference() {
+            if (!window.PhysioTheme) return;
+            const preference = window.PhysioTheme.getPreference();
+            state.appPreferences.theme = preferenceToLabel(preference);
+        }
+
+        function setSaveStatus(text) {
+            saveStatus.textContent = text;
+            if (saveStatusTimer) clearTimeout(saveStatusTimer);
+            saveStatusTimer = setTimeout(() => {
+                saveStatus.textContent = "";
+            }, 1800);
+        }
+
+        function persistState() {
+            localStorage.setItem(userStorageKey, JSON.stringify(state));
+            setSaveStatus("Saved locally");
+        }
+
+        function applyStateToUI() {
+            syncThemeStateFromPreference();
+            Object.keys(state.profile).forEach((field) => {
+                const valueNode = document.getElementById("value-" + field);
+                if (valueNode) valueNode.textContent = state.profile[field];
+            });
+
+            document.querySelectorAll(".duration-btn").forEach((btn) => {
+                const active = Number(btn.dataset.duration) === Number(state.workoutRecovery.preferredDuration);
+                btn.classList.toggle("active", active);
+                btn.setAttribute("aria-checked", active ? "true" : "false");
+            });
+
+            document.getElementById("recoveryReminders").checked = state.workoutRecovery.recoveryDayReminders;
+            document.getElementById("painFeedback").checked = state.workoutRecovery.painFeedbackAfterWorkouts;
+            document.getElementById("autoAdjustDifficulty").checked = state.workoutRecovery.autoAdjustDifficulty;
+            document.getElementById("conservativeMode").checked = state.workoutRecovery.conservativeProgressionMode;
+            document.getElementById("workoutReminders").checked = state.notifications.workoutReminders;
+            document.getElementById("restDayReminders").checked = state.notifications.restDayReminders;
+            document.getElementById("progressCheckins").checked = state.notifications.progressCheckIns;
+            document.getElementById("routineRecommendations").checked = state.notifications.routineRecommendations;
+            document.getElementById("twoFactorEnabled").checked = state.security.twoFactorEnabled;
+            document.getElementById("themeSelect").value = state.appPreferences.theme;
+            document.getElementById("languageSelect").value = state.appPreferences.language;
+            document.getElementById("unitsSelect").value = state.appPreferences.units;
+        }
+
+        function loadPersistedState() {
+            const raw = localStorage.getItem(userStorageKey);
+            if (!raw) return;
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === "object") {
+                    if (parsed.profile) state.profile = { ...state.profile, ...parsed.profile };
+                    // Backward-compatible migration from previous combined field.
+                    if (state.profile.heightWeight && !parsed.profile?.height && !parsed.profile?.weight) {
+                        const parts = String(state.profile.heightWeight).split("/");
+                        if (parts[0]) state.profile.height = parts[0].trim();
+                        if (parts[1]) state.profile.weight = parts[1].trim();
+                        delete state.profile.heightWeight;
+                    }
+                    if (parsed.workoutRecovery) state.workoutRecovery = { ...state.workoutRecovery, ...parsed.workoutRecovery };
+                    if (parsed.notifications) state.notifications = { ...state.notifications, ...parsed.notifications };
+                    if (parsed.appPreferences) state.appPreferences = { ...state.appPreferences, ...parsed.appPreferences };
+                    if (parsed.security) state.security = { ...state.security, ...parsed.security };
+                    // One-time migration from old settings-only theme storage.
+                    if (parsed.appPreferences?.theme && window.PhysioTheme && !localStorage.getItem("physioapp_theme_preference")) {
+                        window.PhysioTheme.setPreference(labelToPreference(parsed.appPreferences.theme));
+                    }
+                }
+            } catch (error) {
+                console.warn("Could not load local settings", error);
+            }
+        }
+
+        function openEditModal(field, label) {
+            editingField = field;
+            editTitle.textContent = "Edit " + label;
+            editLabel.textContent = label;
+
+            if (field === "rehabLevel" || field === "injuryFocus" || field === "height") {
+                let options = rehabLevels;
+                if (field === "injuryFocus") options = injuryFocusOptions;
+                if (field === "height") options = heightOptions;
+                editSelect.innerHTML = options.map((option) => `<option value="${option}">${option}</option>`).join("");
+                editSelect.value = state.profile[field] || options[0];
+                editInput.classList.add("hidden");
+                editSelect.classList.remove("hidden");
+                editSelect.focus();
+            } else {
+                editInput.value = state.profile[field] || "";
+                editSelect.classList.add("hidden");
+                editInput.classList.remove("hidden");
+                editInput.focus();
+            }
+
+            modal.classList.remove("hidden");
+        }
+
+        function closeEditModal() {
+            modal.classList.add("hidden");
+            editingField = null;
+        }
+
+        function updateProfileField(field, value) {
+            state.profile[field] = value;
+            document.getElementById("value-" + field).textContent = value;
+            persistState();
+        }
+
+        document.querySelectorAll(".editable").forEach((button) => {
+            button.addEventListener("click", () => {
+                const field = button.dataset.field;
+                const label = button.dataset.label || "Value";
+                openEditModal(field, label);
+            });
+        });
+
+        document.getElementById("cancelEditBtn").addEventListener("click", closeEditModal);
+        document.getElementById("saveEditBtn").addEventListener("click", () => {
+            if (!editingField) return;
+            const value = editSelect.classList.contains("hidden")
+                ? editInput.value.trim()
+                : editSelect.value;
+            updateProfileField(editingField, value || state.profile[editingField]);
+            closeEditModal();
+        });
+
+        document.querySelectorAll(".duration-btn").forEach((button) => {
+            button.addEventListener("click", () => {
+                const selected = Number(button.dataset.duration);
+                state.workoutRecovery.preferredDuration = selected;
+                document.querySelectorAll(".duration-btn").forEach((btn) => {
+                    const active = Number(btn.dataset.duration) === selected;
+                    btn.classList.toggle("active", active);
+                    btn.setAttribute("aria-checked", active ? "true" : "false");
+                });
+                persistState();
+            });
+        });
+
+        function bindToggle(id, section, key) {
+            const input = document.getElementById(id);
+            input.addEventListener("change", (event) => {
+                state[section][key] = Boolean(event.target.checked);
+                persistState();
+            });
+        }
+
+        bindToggle("recoveryReminders", "workoutRecovery", "recoveryDayReminders");
+        bindToggle("painFeedback", "workoutRecovery", "painFeedbackAfterWorkouts");
+        bindToggle("autoAdjustDifficulty", "workoutRecovery", "autoAdjustDifficulty");
+        bindToggle("conservativeMode", "workoutRecovery", "conservativeProgressionMode");
+        bindToggle("workoutReminders", "notifications", "workoutReminders");
+        bindToggle("restDayReminders", "notifications", "restDayReminders");
+        bindToggle("progressCheckins", "notifications", "progressCheckIns");
+        bindToggle("routineRecommendations", "notifications", "routineRecommendations");
+        bindToggle("twoFactorEnabled", "security", "twoFactorEnabled");
+
+        document.getElementById("themeSelect").addEventListener("change", (event) => {
+            const selectedLabel = event.target.value;
+            state.appPreferences.theme = selectedLabel;
+            if (window.PhysioTheme) {
+                window.PhysioTheme.setPreference(labelToPreference(selectedLabel));
+            }
+            persistState();
+        });
+        document.getElementById("languageSelect").addEventListener("change", (event) => {
+            state.appPreferences.language = event.target.value;
+            persistState();
+        });
+        document.getElementById("unitsSelect").addEventListener("change", (event) => {
+            state.appPreferences.units = event.target.value;
+            persistState();
+        });
+
+        document.querySelectorAll(".action-item").forEach((button) => {
+            button.addEventListener("click", () => {
+                const action = button.dataset.action || "Action";
+                if (action === "Change password") {
+                    window.alert("Change password flow is not connected yet.");
+                    return;
+                }
+                if (action === "View active sessions") {
+                    window.alert("Active sessions view is not connected yet.");
+                    return;
+                }
+                if (action === "Export or delete data") {
+                    window.alert("Data export/deletion is not connected yet.");
+                    return;
+                }
+                if (action === "Help and FAQs") {
+                    window.alert("Help & FAQs page is not connected yet.");
+                    return;
+                }
+                if (action === "Contact support") {
+                    window.alert("Support contact is not connected yet.");
+                    return;
+                }
+                if (action === "About PhysioApp") {
+                    window.alert("About page is not connected yet.");
+                    return;
+                }
+                if (action === "Terms of Service") {
+                    window.alert("Terms page is not connected yet.");
+                    return;
+                }
+                if (action === "Privacy Policy") {
+                    window.alert("Privacy Policy page is not connected yet.");
+                    return;
+                }
+                window.alert(action + " is not connected yet.");
+            });
+        });
+
+        document.getElementById("twoFactorEnabled").addEventListener("change", (event) => {
+            const enabled = Boolean(event.target.checked);
+            if (enabled) {
+                window.location.href = "/twofa/setup";
+            } else {
+                window.location.href = "/twofa/disable";
+            }
+        });
+
+        document.getElementById("resetSettingsBtn").addEventListener("click", () => {
+            localStorage.removeItem(userStorageKey);
+            window.location.reload();
+        });
+
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) closeEditModal();
+        });
+
+        loadPersistedState();
+        syncThemeStateFromPreference();
+        applyStateToUI();
+    </script>
+</body>
+</html>
