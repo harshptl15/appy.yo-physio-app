@@ -27,6 +27,17 @@ const { ExerciseService } = require("../businesslayer/ExerciseService");
 const exerciseService = new ExerciseService();
 const routineService = new RoutineService();
 
+const getAuthenticatedUserDTO = (req) => {
+    const userId = Number(req.session?.user?.id);
+    if (!Number.isInteger(userId) || userId <= 0) {
+        return null;
+    }
+    return new UserDTO({
+        id: userId,
+        userName: req.session.user.username
+    });
+};
+
 /**
  * show exercise routine view
  * This function is called to show the exercise routine view.
@@ -39,23 +50,42 @@ const routineService = new RoutineService();
  */
 const showExerciseRoutineView = async (req, res) => {
     console.log("in showExerciseRoutineView in exerciseRoutineController.js");
+    const userDTO = getAuthenticatedUserDTO(req);
+    if (!userDTO) {
+        return res.status(401).json({ error: "Invalid session user. Please log in again." });
+    }
     //get the ids of exercises to add to the routine from the request body.
     //they will be converted into ExerciseDTOs.
-        _exerciseRoutineIds = getExerciseResultsIdsFromView(req, res);
+        const exerciseRoutineIds = getExerciseResultsIdsFromView(req);
+        if (!exerciseRoutineIds) {
+            return res.status(400).json({ error: "Invalid number of exercises" });
+        }
         //check if exercise routine is empty
-        if (_exerciseRoutineIds.length === 0) {
+        if (exerciseRoutineIds.length === 0) {
             return res.status(400).json({ error: "created exercise routine is empty" });
         }
-        console.log("exercise routine from request body: ", _exerciseRoutineIds);
+        console.log("exercise routine from request body: ", exerciseRoutineIds);
         //create exercise DTOs from the exercise IDs
-        _inputExerciseDTOs = _exerciseRoutineIds.map(exerciseId => {
+        const inputExerciseDTOs = exerciseRoutineIds.map(exerciseId => {
             return new ExerciseDTO({
                 id: exerciseId
             });
         });
     //just show the view
-    await justAddExercisesToRoutine(req, res, _inputExerciseDTOs);
-    await justShowTheView(req, res);
+    try {
+        await justAddExercisesToRoutine(req, res, inputExerciseDTOs, userDTO);
+        await justShowTheView(req, res);
+    } catch (error) {
+        if (
+            error.code === "SESSION_USER_NOT_FOUND" ||
+            error.code === "INVALID_USER_ID" ||
+            error.code === "ER_NO_REFERENCED_ROW_2"
+        ) {
+            req.session.destroy(() => {});
+            return res.status(401).json({ error: "Session is invalid. Please log in again." });
+        }
+        throw error;
+    }
 }
 
 /**
@@ -64,26 +94,24 @@ const showExerciseRoutineView = async (req, res) => {
  * do not exist in current routine, and adds the new ones to the 
  * routine.
  */
-const justAddExercisesToRoutine = async (req, res, exerciseDtos) => {
+const justAddExercisesToRoutine = async (req, res, exerciseDtos, userDTO = getAuthenticatedUserDTO(req)) => {
     console.log("in justAddExercisesToRoutine in exerciseRoutineController.js");
-    //create user DTO from session
-    _userDTO = new UserDTO({
-        id: req.session.user.id,
-        userName: req.session.userName
-    })
+    if (!userDTO) {
+        return res.status(401).json({ error: "Invalid session user. Please log in again." });
+    }
     //query DAO for exercise routine
-    oldExerciseDtosFromDao = await exerciseService.getExercisesFromRoutineByUserId(_userDTO);
+    const oldExerciseDtosFromDao = await exerciseService.getExercisesFromRoutineByUserId(userDTO);
     //find exercise objects that exist in the input routine but not in the old routine from the database.
     //this is based on te exercise name.
-    exerciseDtosToAdd = exerciseDtos.filter(inputExerciseDto => {
+    const exerciseDtosToAdd = exerciseDtos.filter(inputExerciseDto => {
         return !oldExerciseDtosFromDao.some(oldExercise => oldExercise.id == inputExerciseDto.id);
     })
     //debug the exercises to add to the routine
     console.log("exercises to add to routine: ", exerciseDtosToAdd);
     //get the userId from the session to use in the routine DAO
-    userIdFromSession = req.session.user.id;
+    const userIdFromSession = userDTO.id;
     //create an array to store the routine DTOs to add
-    routinesToAdd = [];
+    const routinesToAdd = [];
     //loop through exercises to add and
     //make an array of RoutineDTOs to add from the exercises and the user id.
     exerciseDtosToAdd.forEach((exercise) => {
@@ -108,14 +136,14 @@ const justAddExercisesToRoutine = async (req, res, exerciseDtos) => {
  * @param {} req 
  * @param {*} res 
  */
-const getExerciseResultsIdsFromView = (req, res) => {
+const getExerciseResultsIdsFromView = (req) => {
     //get the total number of exercises in the list in the results view.
-    const numberOfExercises = req.body.numberOfExercises;
-    if (!numberOfExercises || numberOfExercises <= 0) {
-        return res.status(400).json({ error: "Invalid number of exercises" });
+    const numberOfExercises = Number(req.body.numberOfExercises);
+    if (!Number.isInteger(numberOfExercises) || numberOfExercises <= 0) {
+        return null;
     }
     //array for storing exercise result ids
-    exerciseResultIds = [];
+    const exerciseResultIds = [];
     //iterate through all checkboxes in the view that are checked for 
     //selected exercises to add to the routine, and push their
     //value into the exercise result ids array.
@@ -173,19 +201,23 @@ const removeExerciseFromRoutine = async (req, res) => {
 }
 
 const justShowTheView = async (req, res) => {
+    const userDTO = getAuthenticatedUserDTO(req);
+    if (!userDTO) {
+        return res.status(401).json({ error: "Invalid session user. Please log in again." });
+    }
     //get all exercises in routine for user from Routine DAO
-    exerciseDtosFromDao = await exerciseService.getExercisesFromRoutineByUserId(_userDTO);
+    const exerciseDtosFromDao = await exerciseService.getExercisesFromRoutineByUserId(userDTO);
         //debug message to check if exercise DTOs are returned from DAO
         console.log("exercise DTOs from DAO: ", exerciseDtosFromDao);
     //using the exerciseDtoConverterToObjectsForView helper turn the exerciseDTOs for the routine
     // into objects the view can use, 
-    exerciseObjectsForRoutineView = exerciseDtoConverterToObjectsForView(exerciseDtosFromDao);
+    const exerciseObjectsForRoutineView = exerciseDtoConverterToObjectsForView(exerciseDtosFromDao);
     //debug message to check if exercise objects for routine view are created
     console.log("exercise objects for routine view: ", exerciseObjectsForRoutineView);
     //variable tracks if all exercises in the routine are completed.
-    allExercisesCompleted = false;
+    let allExercisesCompleted = false;
     //index of current exercise in the routine
-    currentExerciseIndex = 0;
+    let currentExerciseIndex = 0;
     //iterate through all exercises in routine to find first one that is not marked as goal completed.
     for (let i=0; i < exerciseObjectsForRoutineView.length; i++) {
         if (exerciseObjectsForRoutineView[i].goal == false) {
@@ -207,7 +239,7 @@ const justShowTheView = async (req, res) => {
         // console.log("exerciseDtosFromDao length: ", exerciseDtosFromDao.length);
         // console.log("exerciseDtosFromDao value: ", exerciseDtosFromDao);
     //create currentExercise local variable
-    currentExercise = null;
+    let currentExercise = null;
     //if query returns no exercises in routine, set currentExercise to dummy values
     if (!exerciseDtosFromDao || exerciseDtosFromDao.length == 0 || exerciseDtosFromDao.length == undefined) {
         currentExercise = { 

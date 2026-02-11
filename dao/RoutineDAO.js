@@ -40,9 +40,30 @@ class RoutineDAO {
     async insertRoutine(userDTO, exerciseDTO) {
         const connection = await this.#connectionManager.getConnection();
         try {
+            const userId = Number(userDTO.id);
+            const exerciseId = Number(exerciseDTO.id);
+
+            if (!Number.isInteger(userId) || userId <= 0) {
+                const error = new Error("Invalid user id for routine insert");
+                error.code = "INVALID_USER_ID";
+                throw error;
+            }
+            if (!Number.isInteger(exerciseId) || exerciseId <= 0) {
+                const error = new Error("Invalid exercise id for routine insert");
+                error.code = "INVALID_EXERCISE_ID";
+                throw error;
+            }
+
+            const [userRows] = await connection.query("SELECT id FROM `User` WHERE id = ?", [userId]);
+            if (!userRows || userRows.length === 0) {
+                const error = new Error("Session user no longer exists");
+                error.code = "SESSION_USER_NOT_FOUND";
+                throw error;
+            }
+
             // Adjust column names to match ../DDL.sql
             const query = "INSERT INTO Routine_Entry (user_id, exercise_id) VALUES (?, ?)";
-            await connection.query(query, [userDTO.id, exerciseDTO.id]);
+            await connection.query(query, [userId, exerciseId]);
         } catch (error) {
             console.error("Error inserting routine:", error);
             throw error; // Propagate the error to the caller
@@ -57,10 +78,34 @@ class RoutineDAO {
     async insertMultipleRoutines(routineDTOs) {
         const connection = await this.#connectionManager.getConnection();
         try {
+            if (!Array.isArray(routineDTOs) || routineDTOs.length === 0) {
+                return;
+            }
+
+            const userId = Number(routineDTOs[0].userId);
+            if (!Number.isInteger(userId) || userId <= 0) {
+                const error = new Error("Invalid user id for routine insert");
+                error.code = "INVALID_USER_ID";
+                throw error;
+            }
+
+            const [userRows] = await connection.query("SELECT id FROM `User` WHERE id = ?", [userId]);
+            if (!userRows || userRows.length === 0) {
+                const error = new Error("Session user no longer exists");
+                error.code = "SESSION_USER_NOT_FOUND";
+                throw error;
+            }
+
             //crate the query with placeholders for each routine
             const query = "INSERT INTO Routine_Entry (user_id, exercise_id) VALUES ?";
             //convert the routineDTOs into an array of values
-            const values = routineDTOs.map(routine => [routine.userId, routine.exerciseId]);
+            const values = routineDTOs.map((routine) => [Number(routine.userId), Number(routine.exerciseId)]);
+            const hasInvalidExerciseId = values.some(([, exerciseId]) => !Number.isInteger(exerciseId) || exerciseId <= 0);
+            if (hasInvalidExerciseId) {
+                const error = new Error("Invalid exercise id for routine insert");
+                error.code = "INVALID_EXERCISE_ID";
+                throw error;
+            }
             //execute the query with the values
             await connection.query(query, [values]);
         } catch (error) {

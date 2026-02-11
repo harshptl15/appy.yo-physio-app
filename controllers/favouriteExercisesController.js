@@ -96,7 +96,19 @@ const submitFavouritesForm = async (req, res) => {
             //create an array of ExerciseDTOs from the favouritesToAddToRoutine array
             const exerciseDTOsToAdd = favouritesToAddToRoutine.map(exerciseId => new ExerciseDTO({ id: exerciseId }));
             //call justAddExercisesToRoutine with the exerciseDTOsToAdd
-            await justAddExercisesToRoutine(req, res, exerciseDTOsToAdd);
+            try {
+                await justAddExercisesToRoutine(req, res, exerciseDTOsToAdd);
+            } catch (error) {
+                if (
+                    error.code === "SESSION_USER_NOT_FOUND" ||
+                    error.code === "INVALID_USER_ID" ||
+                    error.code === "ER_NO_REFERENCED_ROW_2"
+                ) {
+                    req.session.destroy(() => {});
+                    return res.status(401).json({ error: "Session is invalid. Please log in again." });
+                }
+                throw error;
+            }
         }
         if (favouritesToRemove.length > 0) {
             //create an array of ExerciseDTOs from the favouritesToRemove array
