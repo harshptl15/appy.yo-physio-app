@@ -80,8 +80,9 @@ class ExerciseService {
             throw new TypeError("Invalid argument: category must be a non-empty string.");
         }
         try {
-            const isHomeOnly = whereDTO.location === 'home';
-            return await this.#exerciseDAO.getExerciseComplexSearch(isHomeOnly, category, muscleDTOArray);
+            const isGym = whereDTO.location === 'gym';
+return await this.#exerciseDAO.getExerciseComplexSearch(isGym, category, muscleDTOArray);
+
         } catch (error) {
             console.error("Error in getExerciseComplexSearch:", error);
             throw error;

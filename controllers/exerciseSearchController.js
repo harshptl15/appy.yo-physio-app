@@ -75,6 +75,9 @@ const searchExercise = async (req, res) => {
     _whereDTO = new WhereDTO( {id:1, location: _location }); //create a new where DTO object
     //get exercise results from DAO passing it location and muscle groups
     //note muscle groups array is deconstrcuted in these parameters
+    console.log("SEARCH location:", _location);
+console.log("WHERE DTO:", _whereDTO);
+
     _exerciseResults = await exerciseService.getExerciseComplexSearch(_whereDTO, _category, _muscleGroups);
     //check if exercise results are empty
     if (_exerciseResults == null || _exerciseResults.length === 0) {
