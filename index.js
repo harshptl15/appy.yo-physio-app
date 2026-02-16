@@ -4,6 +4,7 @@
  * @author: Luke Johnson
  */
 
+
 const express = require('express'); //import express module.
 //creating an instance of express.
 const app = express();
@@ -37,6 +38,18 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'views')));
 
 app.use('/', userRoutes);//use userRoutes for all routes starting with '/'
+
+//route for aboutUs page
+app.get("/about", (req, res) => {
+  res.render("about");
+});
+
+//route for settings page
+app.get("/settings", (req, res) => {
+  res.render("settings", {
+    user: req.session.user
+  });
+});
 
 //show register view.
 app.get('/', (req, res) => {

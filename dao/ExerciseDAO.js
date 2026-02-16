@@ -150,9 +150,9 @@ class ExerciseDAO {
             // which is not a common case. 
             // 
             // A future group can add this feature if they want to.
-            if (isGym) {
-                query += " AND e.is_gym_only = 1"; // change 0 to false if query does not work
-            }
+            if (isGym === false) {
+  query += " AND e.is_gym_only = 0";
+}
 
             // Prepare parameters: category, muscle names, and avoid muscle names (if any)
             const queryParams = [category, ...muscleNames];

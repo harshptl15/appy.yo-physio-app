@@ -1,7 +1,7 @@
 /**
  * routes/userRoutes.js
  * routes for login view, regsiter view, 
- * @author Luke Johnson,El Mehdi Chaouni Ben Abdellah
+ * @author Luke Johnson,El Mehdi Chaouni Ben Abdellah, Mohammad Huzaifa
  */
 
 const express       = require('express'); //import express module
@@ -45,6 +45,12 @@ const twofaDisableLimiter = createRateLimiter({
     onLimit: (req, res) =>
         res.status(429).render('twofa-disable', { error: 'Too many attempts. Try again later.' })
 });
+const settingsController = require('../controllers/settingsController');            //import settings controller
+
+// — Settings routes —
+router.post('/settings/profile', checkAuthenticated, settingsController.updateProfile);
+
+router.post('/settings/password', checkAuthenticated, settingsController.updatePassword);
 
 // — Setup 2FA —
 router.get( '/twofa/setup',  checkAuthenticated, twofaCtrl.getTwofaSetup);
@@ -92,15 +98,24 @@ router.get('/logout', logoutController.logout);
  */
 router.get('/dashboard', checkAuthenticated, dashboardController.showDashboard);
 
+
 /**
  * route to start a workout. goes to locationController.js which links to whereView.ejs
  */
 router.get('/workouts', checkAuthenticated, locationSelectorController.showWhereView);
 
 /**
+ * route to show info page with instructions
+ */
+router.get('/info', checkAuthenticated, (req, res) => {
+    res.render('info', { user: req.user });
+});
+
+/**
  * route for selecting a location from the where view.
  */
 router.post('/whereSelect', checkAuthenticated, locationSelectorController.whereSelect);
+
 
 /**
  * route to category selector controller which renders categoryView.ejs
