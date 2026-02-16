@@ -14,7 +14,7 @@ const bcrypt = require('bcrypt');
  * @returns {Promise<boolean>}
  */
 const isUsernameTaken = async (username) => {
-  const [rows] = await db.query('SELECT 1 FROM User WHERE username = ?', [username]);
+  const [rows] = await db.query('SELECT 1 FROM `User` WHERE username = ?', [username]);
   return rows.length > 0;
 };
 
@@ -24,7 +24,7 @@ const isUsernameTaken = async (username) => {
  * @returns {Promise<boolean>}
  */
 const isEmailTaken = async (email) => {
-  const [rows] = await db.query('SELECT 1 FROM User WHERE email = ?', [email]);
+  const [rows] = await db.query('SELECT 1 FROM `User` WHERE email = ?', [email]);
   return rows.length > 0;
 };
 
@@ -38,7 +38,7 @@ const registerUser = async (name, email, password) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     console.log(`Registering user: ${name} with email: ${email}`);
-    await db.query('INSERT INTO User (username, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword]);
+    await db.query('INSERT INTO `User` (username, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword]);
     console.log('User added to db');
   } catch (error) {
     console.error('Error registering user:', error);
@@ -51,7 +51,7 @@ const registerUser = async (name, email, password) => {
  * @param {string} secret 
  */
 const enableTwoFactor = async (userId, secret) => {
-  await db.query('UPDATE User SET twofa_enabled = ?, twofa_secret = ? WHERE id = ?',[true, secret, userId]);
+  await db.query('UPDATE `User` SET twofa_enabled = ?, twofa_secret = ? WHERE id = ?',[true, secret, userId]);
 };
 
 /**
@@ -59,7 +59,7 @@ const enableTwoFactor = async (userId, secret) => {
  * @param {number} userId 
  */
 const disableTwoFactor = async (userId) => {
-  await db.query('UPDATE User SET twofa_enabled = ?, twofa_secret = NULL WHERE id = ?',  [false, userId]);
+  await db.query('UPDATE `User` SET twofa_enabled = ?, twofa_secret = NULL WHERE id = ?',  [false, userId]);
 };
 
 /**
@@ -70,7 +70,7 @@ const disableTwoFactor = async (userId) => {
  */
 const loginUser = async (name, password) => {
   try {
-    const [userRows] = await db.query('SELECT * FROM User WHERE username = ?', [name]);
+    const [userRows] = await db.query('SELECT * FROM `User` WHERE username = ?', [name]);
     if (userRows.length === 0) {
       console.log('No user found with username:', name);
       return null;
@@ -87,13 +87,34 @@ const loginUser = async (name, password) => {
   }
 }
 const getUserById = async (id) => {
-  const [rows] = await db.query('SELECT id, username, twofa_enabled, twofa_secret FROM User WHERE id = ?',[id] );
+  const [rows] = await db.query(
+    `SELECT
+      id,
+      username,
+      twofa_enabled,
+      twofa_secret,
+      gender,
+      age,
+      height_unit,
+      height_cm,
+      height_ft,
+      height_in,
+      weight_unit,
+      weight_value,
+      injury_focus,
+      injury_focus_other,
+      condition_focus,
+      rehab_level
+    FROM \`User\`
+    WHERE id = ?`,
+    [id]
+  );
   return rows[0] || null;
 };
 
 const getIdofUser = async (userName) => {
   try {
-    const [rows] = await db.query('SELECT id FROM User WHERE username = ?', [userName]);
+    const [rows] = await db.query('SELECT id FROM `User` WHERE username = ?', [userName]);
     if (rows.length === 0) {
       console.log('No user found with username:', userName);
       return null;
@@ -105,4 +126,19 @@ const getIdofUser = async (userName) => {
   }
 }
 
-module.exports = { registerUser, loginUser, isUsernameTaken, isEmailTaken,enableTwoFactor,disableTwoFactor, getIdofUser,getUserById };
+const getAllUserIds = async () => {
+  const [rows] = await db.query('SELECT id FROM `User`');
+  return rows.map((row) => Number(row.id)).filter((id) => Number.isInteger(id) && id > 0);
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  isUsernameTaken,
+  isEmailTaken,
+  enableTwoFactor,
+  disableTwoFactor,
+  getIdofUser,
+  getUserById,
+  getAllUserIds
+};

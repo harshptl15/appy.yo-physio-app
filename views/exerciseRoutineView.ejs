@@ -31,6 +31,15 @@
         </aside>
         <div class="routine-card animate__animated animate__zoomIn">
             <h1 class="animate__animated animate__fadeInDown">Your Exercise Routine</h1>
+            <% if (workoutPlanMetadata) { %>
+              <div class="routine-box" style="margin-bottom: 0.8rem;">
+                <p><strong>Session plan:</strong> Warmup + <%= workoutPlanMetadata.selectedExercises %> exercises</p>
+                <p>
+                  Estimated duration: <%= workoutPlanMetadata.estimatedDurationMinutes %> min
+                  (Preference: <%= workoutPlanMetadata.durationPreferenceMinutes %> min)
+                </p>
+              </div>
+            <% } %>
         <!-- exerciseRoutine is an array of objects with exerciseName properties passed from the controller.
          so far this list does nothing other than dispaly the values passed by the array. -->
          <!-- select is no longer good for the view, i am replacing it with divs -->
@@ -72,6 +81,35 @@
         <div class="all-exercises-completed">
             <p>🎉 All exercises in your routine are completed!</p>
         </div>
+        <% if (showPainFeedbackPrompt && activeWorkoutSessionId) { %>
+          <div class="current-exercise" id="painFeedbackCard">
+            <h2>Post-workout pain check-in</h2>
+            <p>Help us tailor your next session by sharing how you feel.</p>
+            <form id="painFeedbackForm">
+              <input type="hidden" id="workoutSessionId" value="<%= activeWorkoutSessionId %>">
+              <label for="painScore"><strong>Pain level (0-10)</strong></label>
+              <input type="number" id="painScore" min="0" max="10" required style="width: 100%; margin: 0.4rem 0 0.8rem; padding: 0.45rem;">
+
+              <label for="painTrend"><strong>Compared to before workout</strong></label>
+              <select id="painTrend" required style="width: 100%; margin: 0.4rem 0 0.8rem; padding: 0.45rem;">
+                <option value="">Select trend</option>
+                <option value="better">Felt better</option>
+                <option value="same">Felt the same</option>
+                <option value="worse">Felt worse</option>
+              </select>
+
+              <label for="painNotes"><strong>Notes (optional)</strong></label>
+              <textarea id="painNotes" rows="3" maxlength="500" style="width: 100%; margin: 0.4rem 0 0.8rem; padding: 0.45rem;"></textarea>
+
+              <button type="submit" class="btn btn-primary">Submit pain feedback</button>
+              <p id="painFeedbackStatus" style="margin-top: 0.6rem;"></p>
+            </form>
+          </div>
+        <% } else if (!painFeedbackAfterWorkoutsEnabled) { %>
+          <div class="all-exercises-completed">
+            <p>Pain check-in is disabled in your settings. Workout completed successfully.</p>
+          </div>
+        <% } %>
         <!-- div for buttons to control the current exercise in the routine. -->
         <% } else { %>
             <div class="current-exercise"></div>
@@ -114,6 +152,43 @@
         hamburgerBtn.addEventListener("click", () => {
         sidebar.classList.toggle("open");
         });
+
+        const painFeedbackForm = document.getElementById('painFeedbackForm');
+        if (painFeedbackForm) {
+          painFeedbackForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const statusEl = document.getElementById('painFeedbackStatus');
+            statusEl.textContent = 'Saving...';
+            statusEl.style.color = '#1f3a5a';
+
+            const payload = {
+              workoutSessionId: Number(document.getElementById('workoutSessionId').value),
+              painScore: Number(document.getElementById('painScore').value),
+              trend: document.getElementById('painTrend').value,
+              notes: document.getElementById('painNotes').value.trim()
+            };
+
+            try {
+              const response = await fetch('/api/workouts/pain-feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              const result = await response.json();
+
+              if (!response.ok) {
+                throw new Error(result.error || 'Failed to save pain feedback.');
+              }
+
+              statusEl.textContent = 'Saved. Next workout progression has been updated.';
+              statusEl.style.color = '#1e7b4f';
+              setTimeout(() => window.location.reload(), 600);
+            } catch (error) {
+              statusEl.textContent = error.message || 'Failed to save pain feedback.';
+              statusEl.style.color = '#9b1c1c';
+            }
+          });
+        }
     </script>
 </body>
 </html>

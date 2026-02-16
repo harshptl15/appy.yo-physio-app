@@ -12,6 +12,8 @@ const session = require('express-session'); //import express-session for session
 const path = require('path'); //import path module for handling file paths
 //import userRoutes used for routing to register and login views.
 const userRoutes = require('./routes/userRoutes');
+const { checkAuthenticated } = require('./middleware/auth');
+const userModel = require('./models/userModel');
 
 //used for parsing
 app.use(express.json());
@@ -41,10 +43,27 @@ app.get("/about", (req, res) => {
 });
 
 //route for settings page
-app.get("/settings", (req, res) => {
-  res.render("settings", {
-    user: req.session.user
-  });
+app.get("/settings", checkAuthenticated, async (req, res) => {
+  const notice = req.query.message
+    ? {
+        type: req.query.type || 'info',
+        message: req.query.message
+      }
+    : null;
+  try {
+    const dbUser = await userModel.getUserById(req.session.user.id);
+    const user = dbUser
+      ? {
+          ...req.session.user,
+          ...dbUser
+        }
+      : req.session.user;
+
+    res.render("settings", { user, notice });
+  } catch (error) {
+    console.error('Error loading settings profile:', error);
+    res.render("settings", { user: req.session.user, notice });
+  }
 });
 
 //show register view.

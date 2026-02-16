@@ -12,44 +12,95 @@ This is the dashboard, landing page after login. Needs lots of work. Most things
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Physio Dashboard</title>
   <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="/js/theme.js"></script>
+  <script src="/js/language.js?v=3"></script>
 </head>
 <body>
   <div class="overlay">
     <aside class="sidebar">
       <div>
         <h2>👋 Welcome, <%= user.username %></h2>
-        <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
-        <a class="nav-link" href="/showRoutine">📅 Routines</a>
-        <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
-        <a class="nav-link" href="/about">ℹ️ About Us</a>
-        <a class="nav-link" href="/info">📘 How To Use</a>
-        <a class="nav-link" href="/settings">⚙️ Settings</a>
-        <a class="nav-link" href="/twofa/setup">🔒 Enable 2FA</a>
-        <a class="nav-link" href="/twofa/disable">🔓 Disable 2FA</a>
+        <a class="nav-link" href="/muscleGroup">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
+        <a class="nav-link" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
+        <a class="nav-link" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
+        <a class="nav-link" href="/about">ℹ️ <span data-i18n="dashboard.nav.about">About Us</span></a>
+        <a class="nav-link" href="/info">📘 <span data-i18n="dashboard.nav.howto">How To Use</span></a>
+        <a class="nav-link" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
+        <a class="nav-link" href="/twofa/setup">🔒 <span data-i18n="dashboard.nav.enable2fa">Enable 2FA</span></a>
+        <a class="nav-link" href="/twofa/disable">🔓 <span data-i18n="dashboard.nav.disable2fa">Disable 2FA</span></a>
       </div>
-      <a href="/logout" class="action-btn">Logout</a>
+      <a href="/logout" class="action-btn" data-i18n="dashboard.logout">Logout</a>
     </aside>
 
     <main class="main-content">
-      <h1>Your Progress</h1>
+      <h1 data-i18n="dashboard.title">Your Progress</h1>
+      <% if (inAppNotificationCards && inAppNotificationCards.length) { %>
+        <div style="display: grid; gap: 0.75rem; margin-bottom: 1rem;">
+              <% inAppNotificationCards.forEach(function(card) { %>
+            <div class="stat-box" style="border: 1px solid #9fc0dd;">
+              <h2><%= card.type.split('_').join(' ') %></h2>
+              <p><%= card.message %></p>
+              <a href="<%= card.ctaLink %>" class="action-btn" style="margin-top: 0.5rem; display: inline-block;" data-notification-id="<%= card.id %>">
+                <%= card.ctaLabel %>
+              </a>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (routineRecommendation) { %>
+        <div class="stat-box" style="margin-bottom: 1rem; border: 1px solid #9fc0dd;">
+          <h2>Recommended For You Today</h2>
+          <p><strong><%= routineRecommendation.title %></strong> · <%= routineRecommendation.duration %> min · <%= routineRecommendation.difficulty %></p>
+          <p><%= routineRecommendation.rationale %></p>
+          <a href="<%= routineRecommendation.ctaLink %>" class="action-btn" id="routineRecommendationCta" data-notification-id="<%= routineRecommendation.notificationId %>">
+            <%= routineRecommendation.ctaLabel %>
+          </a>
+        </div>
+      <% } %>
+
+      <% if (progressCheckInPrompt) { %>
+        <div class="stat-box" style="margin-bottom: 1rem; border: 1px solid #9fc0dd;">
+          <h2>Weekly Progress Check-In</h2>
+          <p><%= progressCheckInPrompt.message %></p>
+          <form id="progressCheckinForm">
+            <input type="hidden" id="progressCheckinNotificationId" value="<%= progressCheckInPrompt.notificationId %>">
+            <label for="checkinMood">Mood (optional)</label>
+            <input id="checkinMood" type="text" maxlength="80" style="width: 100%; margin: 0.3rem 0 0.6rem; padding: 0.5rem;">
+
+            <label for="checkinPainAvg">Average pain (0-10, optional)</label>
+            <input id="checkinPainAvg" type="number" min="0" max="10" style="width: 100%; margin: 0.3rem 0 0.6rem; padding: 0.5rem;">
+
+            <label for="checkinMobility">Mobility rating (1-5, optional)</label>
+            <input id="checkinMobility" type="number" min="1" max="5" style="width: 100%; margin: 0.3rem 0 0.6rem; padding: 0.5rem;">
+
+            <label for="checkinNotes">Notes (optional)</label>
+            <textarea id="checkinNotes" rows="3" maxlength="600" style="width: 100%; margin: 0.3rem 0 0.6rem; padding: 0.5rem;"></textarea>
+
+            <button type="submit" class="action-btn">Submit check-in</button>
+            <p id="progressCheckinStatus" style="margin-top: 0.6rem;"></p>
+          </form>
+        </div>
+      <% } %>
+
       <div class="stats">
         <div class="stat-box">
           <h2></h2>
-          <p>Next Break Day</p>
+          <p data-i18n="dashboard.stat.nextBreak">Next Break Day</p>
         </div>
         <div class="stat-box">
           <h2></h2>
-          <p>Current Streak</p>
+          <p data-i18n="dashboard.stat.streak">Current Streak</p>
         </div>
         <div class="stat-box">
           <h2></h2>
-          <p>Last Workout</p>
+          <p data-i18n="dashboard.stat.lastWorkout">Last Workout</p>
         </div>
       </div>
 
       <div class="cta-buttons">
-        <a href="/workouts" class="action-btn">Start New Workout</a>
-        <a href="/goals" class="action-btn secondary">Your Goals</a>
+        <a href="/workouts" class="action-btn" data-i18n="dashboard.cta.startWorkout">Start New Workout</a>
+        <a href="/goals" class="action-btn secondary" data-i18n="dashboard.cta.goals">Your Goals</a>
       </div>
     </main>
   </div>
@@ -62,6 +113,48 @@ This is the dashboard, landing page after login. Needs lots of work. Most things
         const confirmed = confirm("Are you sure you want to disable Two-Factor Authentication?");
         if (!confirmed) {
           event.preventDefault(); // Stop the navigation
+        }
+      });
+    }
+
+    document.querySelectorAll('[data-notification-id]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        const id = el.getAttribute('data-notification-id');
+        if (!id) return;
+        fetch('/api/notifications/' + id + '/click', { method: 'POST' }).catch(function () {});
+      });
+    });
+
+    const progressCheckinForm = document.getElementById('progressCheckinForm');
+    if (progressCheckinForm) {
+      progressCheckinForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const statusEl = document.getElementById('progressCheckinStatus');
+        statusEl.textContent = 'Saving...';
+        statusEl.style.color = '#1f3a5a';
+
+        const payload = {
+          notificationId: Number(document.getElementById('progressCheckinNotificationId').value || 0),
+          mood: document.getElementById('checkinMood').value.trim(),
+          painAvg: document.getElementById('checkinPainAvg').value,
+          mobilityRating: document.getElementById('checkinMobility').value,
+          notes: document.getElementById('checkinNotes').value.trim()
+        };
+
+        try {
+          const response = await fetch('/api/progress-checkins', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Failed to submit check-in.');
+          statusEl.textContent = 'Check-in saved.';
+          statusEl.style.color = '#1e7b4f';
+          setTimeout(function () { window.location.reload(); }, 500);
+        } catch (error) {
+          statusEl.textContent = error.message || 'Failed to submit check-in.';
+          statusEl.style.color = '#9b1c1c';
         }
       });
     }

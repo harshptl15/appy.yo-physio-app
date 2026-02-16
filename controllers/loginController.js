@@ -3,6 +3,7 @@
  * @author Luke Johnson, El Mehdi Chaouni Ben Abdellah
  * */
 const userModel = require('../models/userModel');
+const { generateNotificationEventsForUser } = require('../services/notificationEligibilityService');
 
 /**
  * handles login of user via AJAX (JSON).
@@ -39,13 +40,22 @@ exports.login = async (req, res) => {
      * */
     if (user.twofa_enabled) {
       req.session.temp_twofa_user = { id: user.id, username: user.username };
-      req.session.user = { id: user.id, username: user.username };
       return res.status(200).json({ twofaRequired: true });
     }
 
     /**
      *  4. Success without 2FA: create final session
-     * */    req.session.user = { id: user.id, username: user.username };
+     * */
+    req.session.user = {
+      id: user.id,
+      username: user.username,
+      twofa_enabled: !!user.twofa_enabled
+    };
+
+    generateNotificationEventsForUser(user.id).catch((error) => {
+      console.error('Notification generation on login failed:', error);
+    });
+
     return res.status(200).json({ twofaRequired: false });
 
   } catch (err) {

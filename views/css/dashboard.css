@@ -30,6 +30,50 @@ body {
     color: #fff;
 }
 
+:root[data-theme='light'] .overlay {
+    background-color: rgba(255, 255, 255, 0.55);
+}
+
+:root[data-theme='light'] .sidebar {
+    background-color: rgba(245, 248, 252, 0.92);
+}
+
+:root[data-theme='light'] .sidebar h2,
+:root[data-theme='light'] .nav-link,
+:root[data-theme='light'] .main-content h1,
+:root[data-theme='light'] .stat-box h2 {
+    color: #132433;
+}
+
+:root[data-theme='light'] .quote,
+:root[data-theme='light'] .stat-box p {
+    color: #344b5d;
+}
+
+:root[data-theme='light'] .stat-box {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+:root[data-theme='light'] .action-btn {
+    background-color: #132433;
+    color: #ffffff;
+}
+
+:root[data-theme='light'] .action-btn:hover {
+    background-color: #24435d;
+}
+
+:root[data-theme='light'] .secondary {
+    background-color: transparent;
+    border-color: #132433;
+    color: #132433;
+}
+
+:root[data-theme='light'] .secondary:hover {
+    background-color: #132433;
+    color: #ffffff;
+}
+
 .overlay {
     background-color: rgba(0, 0, 0, 0.75);
     min-height: 100vh;

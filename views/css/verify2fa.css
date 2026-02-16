@@ -1,107 +1,112 @@
-/*
- * @Author Gregory Mah
- * @Date 2025-08-03
- * @class CST8319_320
-*/
-
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
+* {
+  box-sizing: border-box;
 }
+
 body {
-  background-size: cover;
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #f1f7ff;
+  background:
+    radial-gradient(900px 540px at 8% 0%, rgba(93, 176, 255, 0.23), transparent 65%),
+    radial-gradient(820px 440px at 100% 100%, rgba(124, 111, 255, 0.18), transparent 70%),
+    linear-gradient(150deg, #101a32, #161328 48%, #212336 100%);
 }
 
 .overlay {
-  background-color: rgba(0, 0, 0, 0.8);
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
 }
 
 .form-card {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 40px;
-  width: 100%;
-  max-width: 400px;
+  width: min(460px, 100%);
+  background: rgba(12, 24, 42, 0.8);
+  border: 1px solid rgba(179, 197, 255, 0.25);
   border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+  padding: 1.4rem;
   text-align: center;
 }
 
-.form-card h1 {
-  font-size: 1.8rem;
-  font-weight: 800;
-  margin-bottom: 20px;
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #97b6ff;
+  font-size: 0.78rem;
+}
+
+h1 {
+  margin: 0.35rem 0 0.5rem;
+  font-size: clamp(1.4rem, 2.8vw, 1.95rem);
+}
+
+.helper {
+  margin: 0 0 1rem;
+  color: #c7d7f7;
 }
 
 .error-msg {
-  background: rgba(255, 0, 0, 0.2);
-  border: 1px solid #ff4d4d;
-  color: #ff4d4d;
-  font-weight: bold;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 111, 111, 0.6);
+  background: rgba(194, 51, 51, 0.2);
+  color: #ffd6d6;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.token-label {
+  display: block;
+  margin-bottom: 0.55rem;
+  text-align: left;
+  color: #d8e5ff;
 }
 
 input {
-  width: 80%;
-  padding: 14px;
-  margin-bottom: 20px;
-  margin-top: 10px;
-  font-size: 1rem;
-  border: none;
+  width: 100%;
   border-radius: 10px;
+  border: 1px solid rgba(179, 197, 230, 0.3);
+  background: rgba(7, 11, 22, 0.78);
+  color: #f8fbff;
+  padding: 0.8rem 0.84rem;
+  margin-bottom: 0.95rem;
+  font-family: inherit;
+  font-size: 1.03rem;
   text-align: center;
-  font-weight: 600;
-  letter-spacing: 4px;
-  background: #fff;
-  color: #111;
+  letter-spacing: 0.28em;
+  font-weight: 700;
+}
+
+input:focus {
+  outline: 2px solid rgba(145, 177, 255, 0.48);
 }
 
 button {
   width: 100%;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: bold;
-  background: #fff;
-  color: #111;
+  padding: 0.72rem 0.9rem;
   border: none;
   border-radius: 10px;
+  font-family: inherit;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s;
+  color: #111b32;
+  background: linear-gradient(90deg, #9db9ff, #93ccff);
+  transition: transform 0.2s ease;
 }
 
 button:hover {
-  background: #ddd;
+  transform: translateY(-2px);
 }
 
-.footer {
-  margin-top: 30px;
-  font-size: 0.9rem;
-  color: #aaa;
+.secondary-link {
+  display: inline-block;
+  margin-top: 0.82rem;
+  color: #d8e3ff;
+  text-decoration: none;
 }
 
-.sr-only {
-  color: white;
-}
-
-h1 {
-  color: white;
+.secondary-link:hover {
+  text-decoration: underline;
 }

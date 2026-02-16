@@ -1,21 +1,45 @@
 const speakeasy = require('speakeasy');
 const qrcode    = require('qrcode');
 const userModel = require('../models/userModel');
+const { generateNotificationEventsForUser } = require('../services/notificationEligibilityService');
+const APP_ISSUER = 'PhysioApp';
+
+const renderSetup = (req, res, secretBase32, error = null) => {
+  const otpAuthUrl = speakeasy.otpauthURL({
+    secret: secretBase32,
+    label: `${APP_ISSUER}:${req.user.username}`,
+    issuer: APP_ISSUER,
+    encoding: 'base32'
+  });
+
+  qrcode.toDataURL(otpAuthUrl, (qrErr, dataUrl) => {
+    if (qrErr) {
+      console.error('2FA QR generation error:', qrErr);
+      return res.status(500).render('twofa-setup', {
+        qrCodeUrl: null,
+        manualKey: secretBase32,
+        error: 'Could not generate QR code. Use the manual key below.',
+        username: req.user.username
+      });
+    }
+
+    return res.render('twofa-setup', {
+      qrCodeUrl: dataUrl,
+      manualKey: secretBase32,
+      error,
+      username: req.user.username
+    });
+  });
+};
 
 /**
  * GET /twofa/setup
  * Generate a TOTP secret, store it in the session, and render the 2FA setup page
  */
 exports.getTwofaSetup = (req, res) => {
-  const secret = speakeasy.generateSecret({ length: 20 });
+  const secret = speakeasy.generateSecret({ length: 20, name: `${APP_ISSUER}:${req.user.username}` });
   req.session.twofa_temp_secret = secret.base32;
-  qrcode.toDataURL(secret.otpauth_url, (err, dataUrl) => {
-    if (err) throw err;
-    res.render('twofa-setup', {
-      qrCodeUrl: dataUrl,
-      error: null         // define error to avoid ReferenceError
-    });
-  });
+  renderSetup(req, res, secret.base32);
 };
 
 /**
@@ -23,33 +47,43 @@ exports.getTwofaSetup = (req, res) => {
  * Verify the setup token and enable 2FA in the database
  */
 exports.postTwofaSetup = async (req, res) => {
-  const userId = req.user.id;
-  const token  = req.body.token;
-  const secret = req.session.twofa_temp_secret;
+  try {
+    const userId = req.user.id;
+    const token = (req.body.token || '').trim();
+    const secretBase32 = req.session.twofa_temp_secret;
 
-  const verified = speakeasy.totp.verify({
-    secret,
-    encoding: 'base32',
-    token,
-    window: 1
-  });
+    if (!secretBase32) {
+      return res.redirect('/twofa/setup');
+    }
 
-  if (verified) {
-    await userModel.enableTwoFactor(userId, secret);
-    delete req.session.twofa_temp_secret;
-    return res.redirect('/dashboard');
-  }
+    if (!/^\d{6}$/.test(token)) {
+      return renderSetup(req, res, secretBase32, 'Enter a valid 6-digit code.');
+    }
 
-  // If verification fails, generate a new secret and QR code
-  const newSecret = speakeasy.generateSecret({ length: 20 });
-  req.session.twofa_temp_secret = newSecret.base32;
-  qrcode.toDataURL(newSecret.otpauth_url, (err, dataUrl) => {
-    if (err) throw err;
-    res.render('twofa-setup', {
-      qrCodeUrl: dataUrl,
-      error: 'Invalid code, please try again.'
+    const verified = speakeasy.totp.verify({
+      secret: secretBase32,
+      encoding: 'base32',
+      token,
+      window: 1
     });
-  });
+
+    if (!verified) {
+      return renderSetup(req, res, secretBase32, 'Invalid code. Please try again.');
+    }
+
+    await userModel.enableTwoFactor(userId, secretBase32);
+    delete req.session.twofa_temp_secret;
+    if (req.session.user) req.session.user.twofa_enabled = true;
+    return res.redirect('/settings?type=success&message=Two-factor+authentication+enabled.');
+  } catch (err) {
+    console.error('2FA setup error:', err);
+    return res.status(500).render('twofa-setup', {
+      qrCodeUrl: null,
+      manualKey: req.session.twofa_temp_secret || '',
+      error: 'Unable to enable 2FA right now. Please try again.',
+      username: req.user?.username || ''
+    });
+  }
 };
 
 /**
@@ -60,7 +94,7 @@ exports.getTwofaVerify = (req, res) => {
   if (!req.session.temp_twofa_user) {
     return res.redirect('/login');
   }
-  res.render('twofa-verify');
+  res.render('twofa-verify', { error: null });
 };
 
 /**
@@ -68,24 +102,50 @@ exports.getTwofaVerify = (req, res) => {
  * Verify the 2FA token at login and finalize the user session
  */
 exports.postTwofaVerify = async (req, res) => {
-  const userId = req.session.temp_twofa_user.id;
-  const token  = req.body.token;
+  try {
+    if (!req.session.temp_twofa_user) {
+      return res.redirect('/login');
+    }
 
-  const user = await userModel.getUserById(userId);
-  const verified = speakeasy.totp.verify({
-    secret: user.twofa_secret,
-    encoding: 'base32',
-    token,
-    window: 1
-  });
+    const userId = req.session.temp_twofa_user.id;
+    const token = (req.body.token || '').trim();
 
-  if (!verified) {
-    return res.render('twofa-verify', { error: 'Invalid 2FA code.' });
+    if (!/^\d{6}$/.test(token)) {
+      return res.render('twofa-verify', { error: 'Enter a valid 6-digit code.' });
+    }
+
+    const user = await userModel.getUserById(userId);
+    if (!user || !user.twofa_secret) {
+      return res.render('twofa-verify', { error: '2FA is not configured for this account.' });
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twofa_secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+
+    if (!verified) {
+      return res.render('twofa-verify', { error: 'Invalid 2FA code.' });
+    }
+
+    delete req.session.temp_twofa_user;
+    req.session.user = {
+      id: user.id,
+      username: user.username,
+      twofa_enabled: user.twofa_enabled
+    };
+
+    generateNotificationEventsForUser(user.id).catch((error) => {
+      console.error('Notification generation after 2FA verify failed:', error);
+    });
+
+    return res.redirect('/dashboard');
+  } catch (err) {
+    console.error('2FA verify error:', err);
+    return res.status(500).render('twofa-verify', { error: 'Could not verify code right now.' });
   }
-
-  delete req.session.temp_twofa_user;
-  req.session.user = { id: user.id, username: user.username };
-  res.redirect('/dashboard');
 };
 
 /**
@@ -93,7 +153,12 @@ exports.postTwofaVerify = async (req, res) => {
  * Disable two-factor authentication and redirect to dashboard
  */
 exports.disableTwofa = async (req, res) => {
-  await userModel.disableTwoFactor(req.user.id);
-  delete req.session.user.twofa_enabled; 
-  res.redirect('/dashboard');
+  try {
+    await userModel.disableTwoFactor(req.user.id);
+    if (req.session.user) req.session.user.twofa_enabled = false;
+    return res.redirect('/settings?type=success&message=Two-factor+authentication+disabled.');
+  } catch (err) {
+    console.error('2FA disable error:', err);
+    return res.redirect('/settings?type=error&message=Could+not+disable+2FA.');
+  }
 };
