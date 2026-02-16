@@ -1,29 +1,32 @@
 /**
  * author: Luke Johnson
- * description: this controller for the routine, 
- * it recieves the exercises to add to the routine
- * from the exercise search controller.
- * it renders the exercise routine view.
- * it adds exercises to the routine.
- * it removes exercises from the routine.
- * it marks exercises goals as completed.
+ * description: routine controller with preference-aware plan generation and workout session behavior.
  */
 
-//import the routine DTO
-const { RoutineDTO } = require("../DTO/RoutineDTO");
-//require the user DTO
-const { UserDTO } = require("../DTO/UserDTO");
-//require the exercise DTO
-const { ExerciseDTO } = require("../DTO/ExerciseDTO");
+const { RoutineDTO } = require('../DTO/RoutineDTO');
+const { UserDTO } = require('../DTO/UserDTO');
+const { ExerciseDTO } = require('../DTO/ExerciseDTO');
+const { exerciseDtoConverterToObjectsForView } = require('./exerciseDtoConverterToObjectsForView');
+const { RoutineService } = require('../businesslayer/RoutineService');
+const { ExerciseService } = require('../businesslayer/ExerciseService');
+const {
+  getOrCreateByUserId
+} = require('../models/workoutPreferencesModel');
+const {
+  createWorkoutSession,
+  getWorkoutSessionById,
+  getLastCompletedWorkoutSessionByUserId,
+  getRecentCompletedSessionsByUserId,
+  linkRoutineEntriesToSession,
+  getRoutineStatsByUserId,
+  completeWorkoutSession,
+  getPainFeedbackBySessionId
+} = require('../models/workoutSessionModel');
+const {
+  getPlanConstraintsFromDuration,
+  computeDifficultyAdjustment
+} = require('../services/workoutBehaviorService');
 
-//import the helper for converting exercise DTOs to objects for the view
-const { exerciseDtoConverterToObjectsForView } = require("./exerciseDtoConverterToObjectsForView");
-//require the routine service to get exercises from the DAO
-const { RoutineService } = require("../businesslayer/RoutineService");
-//require the exercise service to get exercises from the DAO
-const { ExerciseService } = require("../businesslayer/ExerciseService");
-
-//instantiate objects of the services.
 const exerciseService = new ExerciseService();
 const routineService = new RoutineService();
 
@@ -126,10 +129,25 @@ const justAddExercisesToRoutine = async (req, res, exerciseDtos, userDTO = getAu
     //insert the routines into the database
     if (routinesToAdd && routinesToAdd.length > 0) {
         await routineService.insertMultipleRoutines(routinesToAdd);
-    }
+const getExerciseResultsIdsFromView = (req, res) => {
+  const numberOfExercises = Number(req.body.numberOfExercises);
+  if (!numberOfExercises || numberOfExercises <= 0) {
+    res.status(400).json({ error: 'Invalid number of exercises' });
+    return [];
+  }
 
-    
-}
+  const exerciseResultIds = [];
+  for (let i = 0; i < numberOfExercises; i += 1) {
+    const raw = req.body[`selected${i}`];
+    if (!raw) continue;
+    const parsed = Number(raw);
+    if (Number.isInteger(parsed) && parsed > 0) {
+      exerciseResultIds.push(parsed);
+    }
+  }
+
+  return exerciseResultIds;
+};
 
 /**
  * helper function to get the exercise results ids from the view.
@@ -151,152 +169,229 @@ const getExerciseResultsIdsFromView = (req) => {
         if (req.body[`selected${i}`]) {
             exerciseResultIds.push(req.body[`selected${i}`]);
         }
-    }
-    console.log("exerciseResultIds: ", exerciseResultIds);
-    return exerciseResultIds;
-}
+const finalizeSessionWithoutPainFeedbackIfNeeded = async ({ userId, sessionId, prefs }) => {
+  if (!sessionId) return;
 
-/**
- * finishedExercise this function marks an exercise as finished, and moves on to the next exercise in the routine.
- * in the process it marks the exercise as completed in the databse, and reloads the view with the data on the next exercise,
- * also passing it all the exercises in the list.
- */
-const markExerciseAsFinished = async (req, res) => {
-    console.log("in markExerciseAsFinished in exerciseRoutineController.js");
-    //get the user id from the session
-    const userId = req.session.user.id;
-    //get the current exercise id from the request body
-    const finishedExerciseId = req.body.finishedExerciseId;
-    //create a RoutineDTO to mark as finished
-    const routineToMarkAsFinished = new RoutineDTO({
-        userId: userId,
-        exerciseId: finishedExerciseId
-    });
-    //render the exercise routine view with all exercises from the routine DAO, and the current exercise object.
-    await routineService.markRoutineAsFinished(routineToMarkAsFinished);
-    justShowTheView(req, res);
-}
+  const session = await getWorkoutSessionById(sessionId);
+  if (!session || session.status !== 'active') return;
 
-/**
- * TODO
- * removeExeriseFromRoutine this function removes the current exercise in the routine.
- * index was the current exercise index, it decrements it. 
- * it then reloads the routine view with the updated routine.
- */
-const removeExerciseFromRoutine = async (req, res) => {
-    //get the exercise id from the request body
-    const exerciseIdToRemove = req.body.exerciseId;
-    //get the user id from the session
-    const userId = req.session.user.id;
-    //create a RoutineDTO to remove
-    const routineToRemove = new RoutineDTO({
-        id: 1,
-        userId: userId,
-        exerciseId: exerciseIdToRemove
-    });
-    //call the routine service to remove the routine
-    await routineService.removeRoutineBySecondaryFields(routineToRemove);
-    //reload the routine view
-    await justShowTheView(req, res);
-}
+  if (prefs.painFeedbackAfterWorkoutsEnabled) {
+    return;
+  }
 
-const justShowTheView = async (req, res) => {
-    const userDTO = getAuthenticatedUserDTO(req);
-    if (!userDTO) {
-        return res.status(401).json({ error: "Invalid session user. Please log in again." });
-    }
-    //get all exercises in routine for user from Routine DAO
-    const exerciseDtosFromDao = await exerciseService.getExercisesFromRoutineByUserId(userDTO);
-        //debug message to check if exercise DTOs are returned from DAO
-        console.log("exercise DTOs from DAO: ", exerciseDtosFromDao);
-    //using the exerciseDtoConverterToObjectsForView helper turn the exerciseDTOs for the routine
-    // into objects the view can use, 
-    const exerciseObjectsForRoutineView = exerciseDtoConverterToObjectsForView(exerciseDtosFromDao);
-    //debug message to check if exercise objects for routine view are created
-    console.log("exercise objects for routine view: ", exerciseObjectsForRoutineView);
-    //variable tracks if all exercises in the routine are completed.
-    let allExercisesCompleted = false;
-    //index of current exercise in the routine
-    let currentExerciseIndex = 0;
-    //iterate through all exercises in routine to find first one that is not marked as goal completed.
-    for (let i=0; i < exerciseObjectsForRoutineView.length; i++) {
-        if (exerciseObjectsForRoutineView[i].goal == false) {
-            currentExerciseIndex = i;   
-            //debug message
-            console.log("current exercise set to ", currentExerciseIndex);
-            //exit the loop once the first exercise with goal false is found
-            break;
-        }
-        //check if at end of loop and no exercises with goals false.
-        if (i == exerciseObjectsForRoutineView.length - 1) {
-            //mark all exercises as completed.
-            allExercisesCompleted = true;
-            console.log("all exercises in routine are completed");
-        }
-    }
-        //debug
-        // console.log("current exercise index: ", currentExerciseIndex);
-        // console.log("exerciseDtosFromDao length: ", exerciseDtosFromDao.length);
-        // console.log("exerciseDtosFromDao value: ", exerciseDtosFromDao);
-    //create currentExercise local variable
-    let currentExercise = null;
-    //if query returns no exercises in routine, set currentExercise to dummy values
-    if (!exerciseDtosFromDao || exerciseDtosFromDao.length == 0 || exerciseDtosFromDao.length == undefined) {
-        currentExercise = { 
-            id: 4,
-            exerciseName: "no exercise in routine", 
-            tips: "",
-            commonMistakes: "",
-            image: "",
-            video: "",
-            sets: "",
-            reps: "",
-            skillLevel: "",
-            tempo: "",
-            position: "",
-            equipment: ""
-            };
-    } else {
-        //create an object for the current exercise.
-        currentExercise = { 
-            id: exerciseDtosFromDao[currentExerciseIndex].id,
-            exerciseName: exerciseDtosFromDao[currentExerciseIndex].exerciseName, 
-            tips: exerciseDtosFromDao[currentExerciseIndex].tips,
-            commonMistakes: exerciseDtosFromDao[currentExerciseIndex].commonMistakes,
-            image: exerciseDtosFromDao[currentExerciseIndex].image,
-            video: exerciseDtosFromDao[currentExerciseIndex].video,
-            sets: exerciseDtosFromDao[currentExerciseIndex].sets,
-            reps: exerciseDtosFromDao[currentExerciseIndex].reps,
-            skillLevel: exerciseDtosFromDao[currentExerciseIndex].skillLevel,
-            tempo: exerciseDtosFromDao[currentExerciseIndex].tempo,
-            position: exerciseDtosFromDao[currentExerciseIndex].position,
-            equipment: exerciseDtosFromDao[currentExerciseIndex].equipment
-            };
-        }
-    //render the exercise routine view with all exercises from the routine DAO, and the current exercise object.
-    res.render('./exerciseRoutineView', {exerciseRoutine: exerciseObjectsForRoutineView, currentExercise: currentExercise, allExercisesCompleted: allExercisesCompleted});
+  const routineStats = await getRoutineStatsByUserId(userId);
+  const completionRatio = routineStats.total === 0 ? 0 : Number((routineStats.completed / routineStats.total).toFixed(2));
+
+  const recentSessions = await getRecentCompletedSessionsByUserId(userId, 5);
+  const adjustment = computeDifficultyAdjustment({
+    autoAdjustEnabled: prefs.autoAdjustDifficultyEnabled,
+    conservativeProgressionEnabled: prefs.conservativeProgressionEnabled,
+    painFeedbackAfterWorkoutsEnabled: prefs.painFeedbackAfterWorkoutsEnabled,
+    currentDifficulty: session.difficulty_before,
+    completionRatio,
+    latestPainFeedback: null,
+    recentSessions,
+    recentFeedbackBySessionId: {}
+  });
+
+  await completeWorkoutSession({
+    sessionId,
+    completionRatio,
+    difficultyAfter: adjustment.difficultyAfter,
+    adjustmentReason: adjustment.adjustmentReason,
+    conservativeProgressionApplied: adjustment.conservativeProgressionApplied
+  });
 };
 
-/**
- * restart the routine by setting all the goals in the routine to false.
- */
+const justAddExercisesToRoutine = async (req, res, exerciseDtos) => {
+  const userId = req.session.user.id;
+  const exerciseIds = exerciseDtos
+    .map((exercise) => Number(exercise.id))
+    .filter((id) => Number.isInteger(id) && id > 0);
+
+  if (exerciseIds.length === 0) {
+    return null;
+  }
+
+  const prefs = await getOrCreateByUserId(userId);
+  const planConstraints = getPlanConstraintsFromDuration(
+    prefs.preferredWorkoutDurationMinutes,
+    exerciseIds.length
+  );
+
+  const limitedExerciseIds = exerciseIds.slice(0, planConstraints.targetExerciseCount);
+  const lastCompletedSession = await getLastCompletedWorkoutSessionByUserId(userId);
+  const difficultyBefore = Number(lastCompletedSession?.difficulty_after || 1.0);
+
+  const workoutSessionId = await createWorkoutSession({
+    userId,
+    preferredWorkoutDurationMinutes: prefs.preferredWorkoutDurationMinutes,
+    targetExerciseCount: limitedExerciseIds.length,
+    estimatedDurationMinutes: planConstraints.estimatedDurationMinutes,
+    difficultyBefore
+  });
+
+  await linkRoutineEntriesToSession({
+    userId,
+    sessionId: workoutSessionId,
+    exerciseIds: limitedExerciseIds
+  });
+
+  req.session.activeWorkoutSessionId = workoutSessionId;
+  req.session.latestSessionPlanMetadata = {
+    durationPreferenceMinutes: prefs.preferredWorkoutDurationMinutes,
+    requestedExercises: exerciseIds.length,
+    selectedExercises: limitedExerciseIds.length,
+    warmupIncluded: planConstraints.warmupIncluded,
+    warmupMinutes: planConstraints.warmupMinutes,
+    perExerciseMinutes: planConstraints.perExerciseMinutes,
+    estimatedDurationMinutes: planConstraints.estimatedDurationMinutes
+  };
+
+  return { workoutSessionId, prefs };
+};
+
+const justShowTheView = async (req, res) => {
+  const userId = req.session.user.id;
+  const userDTO = new UserDTO({ id: userId, userName: req.session.user.username });
+
+  const prefs = await getOrCreateByUserId(userId);
+  const exerciseDtosFromDao = await exerciseService.getExercisesFromRoutineByUserId(userDTO);
+  const exerciseObjectsForRoutineView = exerciseDtoConverterToObjectsForView(exerciseDtosFromDao);
+
+  let allExercisesCompleted = false;
+  let currentExerciseIndex = 0;
+
+  for (let i = 0; i < exerciseObjectsForRoutineView.length; i += 1) {
+    if (exerciseObjectsForRoutineView[i].goal === false) {
+      currentExerciseIndex = i;
+      break;
+    }
+
+    if (i === exerciseObjectsForRoutineView.length - 1) {
+      allExercisesCompleted = true;
+    }
+  }
+
+  let currentExercise = null;
+  if (!exerciseDtosFromDao || exerciseDtosFromDao.length === 0) {
+    currentExercise = {
+      id: 0,
+      exerciseName: 'No exercise in routine',
+      tips: '',
+      commonMistakes: '',
+      image: '',
+      video: '',
+      sets: '',
+      reps: '',
+      skillLevel: '',
+      tempo: '',
+      position: '',
+      equipment: ''
+    };
+  } else {
+    const current = exerciseDtosFromDao[currentExerciseIndex];
+    currentExercise = {
+      id: current.id,
+      exerciseName: current.exerciseName,
+      tips: current.tips,
+      commonMistakes: current.commonMistakes,
+      image: current.image,
+      video: current.video,
+      sets: current.sets,
+      reps: current.reps,
+      skillLevel: current.skillLevel,
+      tempo: current.tempo,
+      position: current.position,
+      equipment: current.equipment
+    };
+  }
+
+  const activeWorkoutSessionId = req.session.activeWorkoutSessionId || null;
+  let shouldShowPainFeedback = false;
+
+  if (allExercisesCompleted && activeWorkoutSessionId) {
+    if (prefs.painFeedbackAfterWorkoutsEnabled) {
+      const existingFeedback = await getPainFeedbackBySessionId(activeWorkoutSessionId);
+      shouldShowPainFeedback = !existingFeedback;
+    } else {
+      await finalizeSessionWithoutPainFeedbackIfNeeded({
+        userId,
+        sessionId: activeWorkoutSessionId,
+        prefs
+      });
+      delete req.session.activeWorkoutSessionId;
+    }
+  }
+
+  res.render('./exerciseRoutineView', {
+    exerciseRoutine: exerciseObjectsForRoutineView,
+    currentExercise,
+    allExercisesCompleted,
+    workoutPlanMetadata: req.session.latestSessionPlanMetadata || null,
+    showPainFeedbackPrompt: shouldShowPainFeedback,
+    activeWorkoutSessionId: activeWorkoutSessionId || null,
+    painFeedbackAfterWorkoutsEnabled: prefs.painFeedbackAfterWorkoutsEnabled
+  });
+};
+
+const showExerciseRoutineView = async (req, res) => {
+  const exerciseRoutineIds = getExerciseResultsIdsFromView(req, res);
+  if (exerciseRoutineIds.length === 0) {
+    return res.status(400).json({ error: 'Created exercise routine is empty' });
+  }
+
+  const inputExerciseDTOs = exerciseRoutineIds.map((exerciseId) => new ExerciseDTO({ id: exerciseId }));
+  await justAddExercisesToRoutine(req, res, inputExerciseDTOs);
+  return justShowTheView(req, res);
+};
+
+const markExerciseAsFinished = async (req, res) => {
+  const userId = req.session.user.id;
+  const finishedExerciseId = Number(req.body.finishedExerciseId);
+  if (!Number.isInteger(finishedExerciseId) || finishedExerciseId <= 0) {
+    return res.status(400).send('Invalid exercise id.');
+  }
+
+  const routineToMarkAsFinished = new RoutineDTO({
+    userId,
+    exerciseId: finishedExerciseId
+  });
+
+  await routineService.markRoutineAsFinished(routineToMarkAsFinished);
+  return justShowTheView(req, res);
+};
+
+const removeExerciseFromRoutine = async (req, res) => {
+  const exerciseIdToRemove = Number(req.body.exerciseId);
+  const userId = req.session.user.id;
+
+  if (!Number.isInteger(exerciseIdToRemove) || exerciseIdToRemove <= 0) {
+    return res.status(400).send('Invalid exercise id.');
+  }
+
+  const routineToRemove = new RoutineDTO({
+    id: 1,
+    userId,
+    exerciseId: exerciseIdToRemove
+  });
+
+  await routineService.removeRoutineBySecondaryFields(routineToRemove);
+  return justShowTheView(req, res);
+};
+
 const restartRoutine = async (req, res) => {
-    console.log("in restartRoutine in exerciseRoutineController.js");
-    //get the user id from the session
-    const userId = req.session.user.id;
-    //create a UserDTO from the user id
-    const userDTO = new UserDTO({ id: userId });
-    //call routineService to restart the routine
-    await routineService.restartEntireRoutine(userDTO);
-    //reload the routine view
-    justShowTheView(req, res);
-}
+  const userId = req.session.user.id;
+  const userDTO = new UserDTO({ id: userId });
+  await routineService.restartEntireRoutine(userDTO);
+  return justShowTheView(req, res);
+};
 
 module.exports = {
-    showExerciseRoutineView,
-    removeExerciseFromRoutine,
-    markExerciseAsFinished,
-    restartRoutine,
-    justShowTheView,
-    justAddExercisesToRoutine
+  showExerciseRoutineView,
+  removeExerciseFromRoutine,
+  markExerciseAsFinished,
+  restartRoutine,
+  justShowTheView,
+  justAddExercisesToRoutine
 };

@@ -4,53 +4,40 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Verify Two‑Factor Authentication</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <title>Verify 2FA | PhysioApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/verify2fa.css">
 </head>
 <body class="auth-bg">
   <div class="overlay">
-    <div class="form-card animate__animated animate__fadeInDown <%= (typeof success !== 'undefined' && success) ? 'success-mode' : '' %>">
-      <% if (typeof success !== 'undefined' && success) { %>
-        <div class="success-state">
-          <div class="success-icon">✓</div>
-          <h1>Verified</h1>
-          <p class="helper-text">Welcome back.</p>
-        </div>
-      <% } else { %>
-      <form action="/twofa/verify" method="POST">
-        <h1>Secure Your Account</h1>
+    <form class="form-card" action="/twofa/verify" method="POST">
+      <p class="eyebrow">Two-Factor Check</p>
+      <h1>Verify Sign-In</h1>
+      <p class="helper">Open your authenticator app and enter the current code.</p>
 
         <% if (typeof error !== 'undefined' && error) { %>
           <div class="error-msg"><%= error %></div>
         <% } %>
 
-        <div class="helper-text">Enter the 6‑digit code from your app.</div>
-        <div id="token-help" class="helper-text helper-sub">Codes refresh every 30 seconds.</div>
-        <label for="token" class="sr-only">6‑digit code</label>
-        <input type="hidden" id="token" name="token" required>
-        <div class="code-inputs" aria-describedby="token-help">
-          <% for (let i = 1; i <= 6; i++) { %>
-            <input
-              type="text"
-              inputmode="numeric"
-              maxlength="1"
-              pattern="[0-9]"
-              class="code-box"
-              aria-label="Digit <%= i %>"
-              <%= i === 1 ? 'autofocus autocomplete="one-time-code"' : '' %>
-            >
-          <% } %>
-        </div>
+      <label for="token" class="token-label">6-digit code</label>
+      <input
+        type="text"
+        id="token"
+        name="token"
+        class="form-control"
+        placeholder="123456"
+        pattern="[0-9]{6}"
+        maxlength="6"
+        inputmode="numeric"
+        required
+        autofocus
+      >
 
-        <div class="actions">
-          <button id="submitBtn" class="primary-btn" type="submit" disabled>Verify</button>
-          <a class="secondary-btn" href="/login">Not now</a>
-        </div>
-
-      </form>
-      <% } %>
-    </div>
+      <button type="submit">Verify</button>
+      <a href="/login" class="secondary-link">Back to login</a>
+    </form>
   </div>
   <script>
     (function () {

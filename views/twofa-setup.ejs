@@ -4,23 +4,21 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Two‑Factor Authentication Setup</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <title>Set Up 2FA | PhysioApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/setup2fa.css">
 </head>
 <body class="auth-bg">
   <div class="overlay">
-    <div class="form-card animate__animated animate__fadeInDown <%= (typeof success !== 'undefined' && success) ? 'success-mode' : '' %>">
-      <% if (typeof success !== 'undefined' && success) { %>
-        <div class="success-state">
-          <div class="success-icon">✓</div>
-          <h1>2FA Enabled</h1>
-          <p class="helper-text">Your account is secure.</p>
-        </div>
-      <% } else { %>
-      <form action="/twofa/setup" method="POST">
-        <h1>Secure Your Account</h1>
-        <p class="helper-text">Add an extra layer of protection before continuing your workouts.</p>
+    <form class="form-card" action="/twofa/setup" method="POST">
+      <p class="eyebrow">Security Upgrade</p>
+      <h1>Set Up Two-Factor Authentication</h1>
+      <p class="helper">
+        Connect your authenticator app to secure
+        <strong><%= username || 'your account' %></strong>.
+      </p>
 
         <% if (typeof error !== 'undefined' && error) { %>
           <div class="error-msg"><%= error %></div>
@@ -60,15 +58,35 @@
         </div>
         <div id="token-help" class="helper-text helper-sub">Codes refresh every 30 seconds.</div>
 
-        <div class="actions">
-          <button id="submitBtn" class="primary-btn" type="submit" disabled>Enable 2FA</button>
-          <a class="secondary-btn" href="/dashboard">Not now</a>
+      <% if (qrCodeUrl) { %>
+        <p>1. Scan this QR code in Google Authenticator, Authy, or 1Password.</p>
+        <div class="qr-box">
+          <img src="<%= qrCodeUrl %>" alt="2FA QR code">
         </div>
-        <div class="footer-note">You can disable 2FA anytime in Settings.</div>
-
-      </form>
       <% } %>
-    </div>
+
+      <div class="manual-key">
+        <p>2. If scanning fails, enter this key manually:</p>
+        <code><%= manualKey %></code>
+      </div>
+
+      <label for="token">3. Enter the current 6-digit code</label>
+      <input
+        type="text"
+        id="token"
+        name="token"
+        class="form-control"
+        placeholder="123456"
+        pattern="[0-9]{6}"
+        maxlength="6"
+        inputmode="numeric"
+        required
+        autofocus
+      >
+
+      <button type="submit">Enable 2FA</button>
+      <a href="/settings" class="secondary-link">Cancel and return to settings</a>
+    </form>
   </div>
   <script>
     (function () {

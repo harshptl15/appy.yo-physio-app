@@ -1,132 +1,762 @@
-<!--
-@Author: Mohammad Huzaifa
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Settings - PhysioApp</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-
-body{
-    background:url("https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=2000&q=80") center/cover no-repeat fixed;
-    color:white;
-}
-
-.overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.65);
-    z-index:-1;
-}
-
-.glass-card{
-    background:rgba(255,255,255,0.1);
-    border:1px solid rgba(255,255,255,0.2);
-    backdrop-filter:blur(10px);
-    border-radius:18px;
-    padding:20px;
-}
-
-.form-control{
-    background:rgba(0,0,0,0.4);
-    color:white;
-    border:1px solid rgba(255,255,255,0.2);
-}
-
-.form-control:focus{
-    background:rgba(0,0,0,0.5);
-    color:white;
-    box-shadow:none;
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="settings.metaTitle">Settings | PhysioApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/settings.css">
+  <script src="/js/theme.js"></script>
+  <script src="/js/language.js?v=3"></script>
+  <script>
+    // Fallback language bootstrap in case later page scripts fail.
+    window.addEventListener('load', function () {
+      if (!window.PhysioLanguage) return;
+      var selector = document.getElementById('languageSelector');
+      var preferred = window.PhysioLanguage.getLanguagePreference();
+      if (selector) selector.value = preferred;
+      window.PhysioLanguage.applyLanguage(preferred);
+    });
+  </script>
 </head>
-
 <body>
-<div class="overlay"></div>
-<div class="container py-5" style="max-width:1000px">
-<h1 class="mb-4 text-center fw-bold">⚙️ Settings</h1>
-<div class="row g-4">
-<!-- PROFILE -->
-<div class="col-md-6">
-<div class="glass-card">
-<h5 class="mb-3">Profile</h5>
-<form action="/settings/profile" method="POST">
-<div class="mb-3">
-<label>Username</label>
-<input type="text" class="form-control"
-value="<%= user ? user.username : '' %>" readonly>
-</div>
+  <div class="page-shell">
+    <header class="page-header">
+      <div>
+        <h1 data-i18n="settings.title">Settings</h1>
+        <p class="subtitle" data-i18n="settings.subtitle">Manage your profile, notifications, preferences, and account security.</p>
+      </div>
+      <div class="header-links">
+        <a href="/dashboard" class="link-btn" data-i18n="settings.backToDashboard">Back to dashboard</a>
+        <a href="/logout" class="link-btn danger" data-i18n="settings.logout">Log out</a>
+      </div>
+    </header>
 
-<div class="mb-3">
-<label>New Username</label>
-<input name="newUsername" class="form-control">
-</div>
-<button class="btn btn-light w-100">Change Username</button>
-</form>
+    <% if (notice && notice.message) { %>
+      <div class="notice <%= notice.type === 'error' ? 'notice-error' : notice.type === 'success' ? 'notice-success' : 'notice-info' %>">
+        <%= notice.message %>
+      </div>
+    <% } %>
 
-</div>
-</div>
+    <main class="settings-layout">
+      <section class="card">
+        <h2><span aria-hidden="true">👤</span> <span data-i18n="settings.profile.title">Profile &amp; Health Information</span></h2>
 
+        <form action="/settings/profile" method="POST" class="stack" id="profileSettingsForm">
+          <div class="form-grid">
+            <div class="setting-group">
+              <label for="newUsername" data-i18n="settings.profile.username">Username</label>
+              <input id="newUsername" name="newUsername" type="text" value="<%= user ? user.username : '' %>" maxlength="45" required>
+            </div>
 
-<!-- PASSWORD -->
-<div class="col-md-6">
-<div class="glass-card">
-<h5 class="mb-3">Password</h5>
-<form action="/settings/password" method="POST">
-<div class="mb-3">
-<label>Current Password</label>
-<input name="currentPassword" type="password" class="form-control">
-</div>
+            <div class="setting-group">
+              <label for="age" data-i18n="settings.profile.ageOptional">Age (optional)</label>
+              <input id="age" name="age" type="number" min="10" max="120" value="<%= user && user.age ? user.age : '' %>">
+            </div>
 
-<div class="mb-3">
-<label>New Password</label>
-<input name="newPassword" type="password" class="form-control">
-</div>
+            <div class="setting-group">
+              <label for="gender" data-i18n="settings.profile.gender">Gender</label>
+              <select id="gender" name="gender" required>
+                <option value="" data-i18n="settings.profile.gender.select">Select gender</option>
+                <option value="male" data-i18n="settings.profile.gender.male" <%= user && user.gender === 'male' ? 'selected' : '' %>>Male</option>
+                <option value="female" data-i18n="settings.profile.gender.female" <%= user && user.gender === 'female' ? 'selected' : '' %>>Female</option>
+                <option value="non_binary" data-i18n="settings.profile.gender.nonBinary" <%= user && user.gender === 'non_binary' ? 'selected' : '' %>>Non-binary</option>
+                <option value="prefer_not_to_say" data-i18n="settings.profile.gender.preferNot" <%= user && user.gender === 'prefer_not_to_say' ? 'selected' : '' %>>Prefer not to say</option>
+                <option value="other" data-i18n="settings.profile.gender.other" <%= user && user.gender === 'other' ? 'selected' : '' %>>Other</option>
+              </select>
+            </div>
 
-<div class="mb-3">
-<label>Confirm Password</label>
-<input name="confirmPassword" type="password" class="form-control">
-</div>
+            <div class="setting-group">
+              <label for="rehabLevel" data-i18n="settings.profile.rehabLevel">Rehab level</label>
+              <select id="rehabLevel" name="rehabLevel" required>
+                <option value="beginner" data-i18n="settings.profile.rehab.beginner" <%= !user || !user.rehab_level || user.rehab_level === 'beginner' ? 'selected' : '' %>>Beginner</option>
+                <option value="intermediate" data-i18n="settings.profile.rehab.intermediate" <%= user && user.rehab_level === 'intermediate' ? 'selected' : '' %>>Intermediate</option>
+                <option value="advanced" data-i18n="settings.profile.rehab.advanced" <%= user && user.rehab_level === 'advanced' ? 'selected' : '' %>>Advanced</option>
+              </select>
+            </div>
+          </div>
 
-<button class="btn btn-warning w-100">Update Password</button>
+          <fieldset class="unit-fieldset">
+            <legend data-i18n="settings.profile.height">Height</legend>
+            <div class="unit-toggle-row">
+              <div class="setting-group unit-selector">
+                <label for="heightUnit" data-i18n="settings.profile.heightUnit">Height unit</label>
+                <select id="heightUnit" name="heightUnit" required>
+                  <option value="cm" <%= !user || !user.height_unit || user.height_unit === 'cm' ? 'selected' : '' %>>cm</option>
+                  <option value="ft_in" <%= user && user.height_unit === 'ft_in' ? 'selected' : '' %>>ft/in</option>
+                </select>
+              </div>
 
-</form>
+              <div id="heightMetricGroup" class="setting-group inline-field">
+                <label for="heightCm" data-i18n="settings.profile.heightCm">Height (cm)</label>
+                <select id="heightCm" name="heightCm"></select>
+              </div>
 
-</div>
-</div>
+              <div id="heightImperialGroup" class="inline-fields hidden" aria-hidden="true">
+                <div class="setting-group inline-field">
+                  <label for="heightFeet" data-i18n="settings.profile.heightFeet">Feet</label>
+                  <select id="heightFeet" name="heightFeet"></select>
+                </div>
+                <div class="setting-group inline-field">
+                  <label for="heightInches" data-i18n="settings.profile.heightInches">Inches</label>
+                  <select id="heightInches" name="heightInches"></select>
+                </div>
+              </div>
+            </div>
+          </fieldset>
 
+          <fieldset class="unit-fieldset">
+            <legend data-i18n="settings.profile.weight">Weight</legend>
+            <div class="unit-toggle-row">
+              <div class="setting-group unit-selector">
+                <label for="weightUnit" data-i18n="settings.profile.weightUnit">Weight unit</label>
+                <select id="weightUnit" name="weightUnit" required>
+                  <option value="kg" <%= !user || !user.weight_unit || user.weight_unit === 'kg' ? 'selected' : '' %>>kg</option>
+                  <option value="lbs" <%= user && user.weight_unit === 'lbs' ? 'selected' : '' %>>lbs</option>
+                </select>
+              </div>
 
-<!-- SECURITY -->
-<div class="col-12">
-<div class="glass-card">
-<h5 class="mb-3">Security</h5>
-<a href="/twofa/setup" class="btn btn-outline-info">Enable 2FA</a>
-<a href="/twofa/disable" class="btn btn-outline-secondary" id="disable2faLink">Disable 2FA</a>
-</div>
-</div>
-</div>
-</div>
+              <div class="setting-group inline-field">
+                <label for="weightValue" data-i18n="settings.profile.weightValue">Weight value</label>
+                <select id="weightValue" name="weightValue"></select>
+              </div>
+            </div>
+          </fieldset>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-const disable2faLink = document.getElementById("disable2faLink");
+          <div class="form-grid">
+            <div class="setting-group">
+              <label for="injuryFocus" data-i18n="settings.profile.injuryFocus">Injury focus</label>
+              <select id="injuryFocus" name="injuryFocus" required>
+                <option value="" data-i18n="settings.profile.injury.select">Select injury focus</option>
+                <option value="none" data-i18n="settings.profile.injury.none" <%= user && user.injury_focus === 'none' ? 'selected' : '' %>>None</option>
+                <option value="knee" data-i18n="settings.profile.injury.knee" <%= user && user.injury_focus === 'knee' ? 'selected' : '' %>>Knee</option>
+                <option value="shoulder" data-i18n="settings.profile.injury.shoulder" <%= user && user.injury_focus === 'shoulder' ? 'selected' : '' %>>Shoulder</option>
+                <option value="back" data-i18n="settings.profile.injury.back" <%= user && user.injury_focus === 'back' ? 'selected' : '' %>>Back</option>
+                <option value="neck" data-i18n="settings.profile.injury.neck" <%= user && user.injury_focus === 'neck' ? 'selected' : '' %>>Neck</option>
+                <option value="ankle" data-i18n="settings.profile.injury.ankle" <%= user && user.injury_focus === 'ankle' ? 'selected' : '' %>>Ankle</option>
+                <option value="hip" data-i18n="settings.profile.injury.hip" <%= user && user.injury_focus === 'hip' ? 'selected' : '' %>>Hip</option>
+                <option value="elbow" data-i18n="settings.profile.injury.elbow" <%= user && user.injury_focus === 'elbow' ? 'selected' : '' %>>Elbow</option>
+                <option value="wrist" data-i18n="settings.profile.injury.wrist" <%= user && user.injury_focus === 'wrist' ? 'selected' : '' %>>Wrist</option>
+                <option value="other" data-i18n="settings.profile.injury.other" <%= user && user.injury_focus === 'other' ? 'selected' : '' %>>Other</option>
+              </select>
+            </div>
 
-if(disable2faLink){
-disable2faLink.addEventListener("click", function(event){
-if(!confirm("Are you sure you want to disable Two-Factor Authentication?")){
-event.preventDefault();
-}
-});
-}
-});
-</script>
+            <div id="injuryOtherGroup" class="setting-group <%= user && user.injury_focus === 'other' ? '' : 'hidden' %>">
+              <label for="injuryOther" data-i18n="settings.profile.injuryOtherOptional">Other injury (optional)</label>
+              <input id="injuryOther" name="injuryOther" type="text" maxlength="120" value="<%= user && user.injury_focus_other ? user.injury_focus_other : '' %>" placeholder="Describe injury focus" data-i18n-placeholder="settings.profile.injuryOtherPlaceholder">
+            </div>
 
+            <div class="setting-group">
+              <label for="conditionFocus" data-i18n="settings.profile.conditionFocus">Condition focus</label>
+              <select id="conditionFocus" name="conditionFocus" required>
+                <option value="" data-i18n="settings.profile.condition.select">Select condition focus</option>
+                <option value="general_fitness" data-i18n="settings.profile.condition.generalFitness" <%= user && user.condition_focus === 'general_fitness' ? 'selected' : '' %>>General Fitness</option>
+                <option value="strength_building" data-i18n="settings.profile.condition.strengthBuilding" <%= user && user.condition_focus === 'strength_building' ? 'selected' : '' %>>Strength Building</option>
+                <option value="muscle_gain" data-i18n="settings.profile.condition.muscleGain" <%= user && user.condition_focus === 'muscle_gain' ? 'selected' : '' %>>Muscle Gain</option>
+                <option value="fat_loss" data-i18n="settings.profile.condition.fatLoss" <%= user && user.condition_focus === 'fat_loss' ? 'selected' : '' %>>Fat Loss</option>
+                <option value="rehab" data-i18n="settings.profile.condition.rehab" <%= user && user.condition_focus === 'rehab' ? 'selected' : '' %>>Rehab</option>
+                <option value="mobility" data-i18n="settings.profile.condition.mobility" <%= user && user.condition_focus === 'mobility' ? 'selected' : '' %>>Mobility</option>
+                <option value="endurance" data-i18n="settings.profile.condition.endurance" <%= user && user.condition_focus === 'endurance' ? 'selected' : '' %>>Endurance</option>
+                <option value="post_surgery_recovery" data-i18n="settings.profile.condition.postSurgery" <%= user && user.condition_focus === 'post_surgery_recovery' ? 'selected' : '' %>>Post-Surgery Recovery</option>
+                <option value="athletic_performance" data-i18n="settings.profile.condition.athleticPerformance" <%= user && user.condition_focus === 'athletic_performance' ? 'selected' : '' %>>Athletic Performance</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" data-i18n="settings.profile.save">Save profile settings</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2><span aria-hidden="true">💪</span> <span data-i18n="settings.workout.title">Workout &amp; Recovery Preferences</span></h2>
+        <div class="setting-group">
+          <label for="workoutDuration" data-i18n="settings.workout.durationLabel">Preferred workout duration</label>
+          <select id="workoutDuration" aria-label="Preferred workout duration" data-i18n-aria-label="settings.workout.durationLabel">
+            <option value="15" data-i18n="settings.workout.duration.15">15 minutes</option>
+            <option value="20" data-i18n="settings.workout.duration.20">20 minutes</option>
+            <option value="30" selected data-i18n="settings.workout.duration.30">30 minutes</option>
+            <option value="45" data-i18n="settings.workout.duration.45">45 minutes</option>
+            <option value="60" data-i18n="settings.workout.duration.60">60 minutes</option>
+          </select>
+        </div>
+        <div class="setting-list">
+          <label class="setting-row" for="recoveryDayReminders">
+            <span data-i18n="settings.workout.recoveryReminders">Recovery day reminders</span>
+            <input id="recoveryDayReminders" class="toggle-input" type="checkbox">
+          </label>
+          <label class="setting-row" for="painFeedbackAfterWorkouts">
+            <span data-i18n="settings.workout.painFeedback">Pain feedback after workouts</span>
+            <input id="painFeedbackAfterWorkouts" class="toggle-input" type="checkbox" checked>
+          </label>
+          <label class="setting-row" for="autoAdjustDifficulty">
+            <span data-i18n="settings.workout.autoAdjust">Auto-adjust difficulty</span>
+            <input id="autoAdjustDifficulty" class="toggle-input" type="checkbox" checked>
+          </label>
+          <label class="setting-row" for="conservativeProgressionMode">
+            <span data-i18n="settings.workout.conservativeMode">Conservative progression mode</span>
+            <input id="conservativeProgressionMode" class="toggle-input" type="checkbox">
+          </label>
+        </div>
+        <p id="workoutPrefsStatus" class="helper-text" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card">
+        <h2><span aria-hidden="true">🔔</span> <span data-i18n="settings.notifications.title">Notifications</span></h2>
+        <div class="setting-list">
+          <label class="setting-row" for="workoutReminders">
+            <span data-i18n="settings.notifications.workoutReminders">Workout reminders</span>
+            <input id="workoutReminders" class="toggle-input" type="checkbox" checked>
+          </label>
+          <label class="setting-row" for="restDayReminders">
+            <span data-i18n="settings.notifications.restDayReminders">Rest day reminders</span>
+            <input id="restDayReminders" class="toggle-input" type="checkbox" checked>
+          </label>
+          <label class="setting-row" for="progressCheckins">
+            <span data-i18n="settings.notifications.progressCheckIns">Progress check-ins</span>
+            <input id="progressCheckins" class="toggle-input" type="checkbox">
+          </label>
+          <label class="setting-row" for="routineRecommendations">
+            <span data-i18n="settings.notifications.routineRecommendations">Routine recommendations</span>
+            <input id="routineRecommendations" class="toggle-input" type="checkbox" checked>
+          </label>
+        </div>
+        <p id="notificationPrefsStatus" class="helper-text" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card">
+        <h2><span aria-hidden="true">🔒</span> <span data-i18n="settings.security.title">Security &amp; Privacy</span></h2>
+        <p class="helper-text" data-i18n="settings.security.helper">Keep your account secure and review your account data whenever you need to.</p>
+        <div class="setting-list">
+          <button id="togglePasswordForm" class="setting-row row-action" type="button">
+            <span data-i18n="settings.security.changePassword">Change password</span>
+            <span data-i18n="settings.action.edit">Edit</span>
+          </button>
+          <% if (user && user.twofa_enabled) { %>
+            <a href="/twofa/disable" class="setting-row row-link row-danger" id="disable2faLink">
+              <span data-i18n="settings.security.disable2fa">Disable Two-Factor Authentication</span>
+              <span data-i18n="settings.action.action">Action</span>
+            </a>
+          <% } else { %>
+            <a href="/twofa/setup" class="setting-row row-link">
+              <span data-i18n="settings.security.enable2fa">Enable Two-Factor Authentication</span>
+              <span data-i18n="settings.action.setup">Setup</span>
+            </a>
+          <% } %>
+          <button id="viewSessionsBtn" class="setting-row row-action" type="button">
+            <span data-i18n="settings.security.viewSessions">View active sessions</span>
+            <span data-i18n="settings.action.open">Open</span>
+          </button>
+          <button id="exportDeleteDataBtn" class="setting-row row-action" type="button">
+            <span data-i18n="settings.security.exportDelete">Export / delete data</span>
+            <span data-i18n="settings.action.open">Open</span>
+          </button>
+        </div>
+
+        <form id="passwordForm" action="/settings/password" method="POST" class="stack hidden-panel">
+          <label for="currentPassword" data-i18n="settings.security.currentPassword">Current password</label>
+          <input id="currentPassword" name="currentPassword" type="password" required>
+
+          <label for="newPassword" data-i18n="settings.security.newPassword">New password</label>
+          <input id="newPassword" name="newPassword" type="password" minlength="6" required>
+
+          <label for="confirmPassword" data-i18n="settings.security.confirmPassword">Confirm new password</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" minlength="6" required>
+
+          <button type="submit" data-i18n="settings.security.updatePassword">Update password</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2><span aria-hidden="true">⚙️</span> <span data-i18n="settings.appPreferences.title">App Preferences</span></h2>
+        <div class="setting-group">
+          <label for="themeSelector" data-i18n="settings.appPreferences.theme">Theme</label>
+          <select id="themeSelector" aria-label="Theme selector" data-i18n-aria-label="settings.appPreferences.theme">
+            <option value="system" data-i18n="settings.theme.system">System</option>
+            <option value="light" data-i18n="settings.theme.light">Light</option>
+            <option value="dark" data-i18n="settings.theme.dark">Dark</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label for="languageSelector" data-i18n="settings.appPreferences.language">Language</label>
+          <select id="languageSelector" aria-label="Language selector" data-i18n-aria-label="settings.appPreferences.language" onchange="if(window.PhysioLanguage){window.PhysioLanguage.setLanguage(this.value);}">
+            <option value="english" selected data-i18n="settings.language.english">English</option>
+            <option value="spanish" data-i18n="settings.language.spanish">Spanish</option>
+            <option value="french" data-i18n="settings.language.french">French</option>
+          </select>
+          <p id="languageStatus" class="helper-text" role="status" aria-live="polite"></p>
+        </div>
+        <div class="setting-group">
+          <label for="unitsSelector" data-i18n="settings.appPreferences.units">Units</label>
+          <select id="unitsSelector" aria-label="Units selector" data-i18n-aria-label="settings.appPreferences.units">
+            <option value="metric" selected data-i18n="settings.units.metric">Metric</option>
+            <option value="imperial" data-i18n="settings.units.imperial">Imperial</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span aria-hidden="true">ℹ️</span> <span data-i18n="settings.support.title">Support &amp; About</span></h2>
+        <div class="setting-list">
+          <button class="setting-row row-action support-link" data-target="settings.support.helpFaqs" type="button">
+            <span data-i18n="settings.support.helpFaqs">Help &amp; FAQs</span>
+            <span data-i18n="settings.action.open">Open</span>
+          </button>
+          <button class="setting-row row-action support-link" data-target="settings.support.contactSupport" type="button">
+            <span data-i18n="settings.support.contactSupport">Contact support</span>
+            <span data-i18n="settings.action.open">Open</span>
+          </button>
+          <a href="/about" class="setting-row row-link">
+            <span data-i18n="settings.support.aboutPhysioApp">About PhysioApp</span>
+            <span data-i18n="settings.action.view">View</span>
+          </a>
+          <button class="setting-row row-action support-link" data-target="settings.support.terms" type="button">
+            <span data-i18n="settings.support.terms">Terms of Service</span>
+            <span data-i18n="settings.action.open">Open</span>
+          </button>
+          <button class="setting-row row-action support-link" data-target="settings.support.privacy" type="button">
+            <span data-i18n="settings.support.privacy">Privacy Policy</span>
+            <span data-i18n="settings.action.open">Open</span>
+          </button>
+        </div>
+        <p class="medical-disclaimer" data-i18n="settings.support.disclaimer">This app does not replace medical advice.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const t = function (key, fallback) {
+        if (window.PhysioLanguage && typeof window.PhysioLanguage.t === 'function') {
+          return window.PhysioLanguage.t(key, fallback);
+        }
+        return fallback || key;
+      };
+
+      const SETTINGS_ENUMS = {
+        heightCm: { min: 140, max: 220 },
+        heightFeet: { min: 4, max: 7 },
+        heightInches: { min: 0, max: 11 },
+        weightKg: { min: 40, max: 180 },
+        weightLbs: { min: 90, max: 400 }
+      };
+
+      const initialValues = {
+        heightUnit: <%- JSON.stringify(user && user.height_unit ? user.height_unit : 'cm') %>,
+        heightCm: <%- JSON.stringify(user && user.height_cm ? String(user.height_cm) : '170') %>,
+        heightFeet: <%- JSON.stringify(user && user.height_ft ? String(user.height_ft) : '5') %>,
+        heightInches: <%- JSON.stringify((user && (user.height_in === 0 || user.height_in)) ? String(user.height_in) : '8') %>,
+        weightUnit: <%- JSON.stringify(user && user.weight_unit ? user.weight_unit : 'kg') %>,
+        weightValue: <%- JSON.stringify(user && user.weight_value ? String(user.weight_value) : '70') %>
+      };
+
+      const heightUnitSelect = document.getElementById('heightUnit');
+      const heightCmSelect = document.getElementById('heightCm');
+      const heightFeetSelect = document.getElementById('heightFeet');
+      const heightInchesSelect = document.getElementById('heightInches');
+      const heightMetricGroup = document.getElementById('heightMetricGroup');
+      const heightImperialGroup = document.getElementById('heightImperialGroup');
+
+      const weightUnitSelect = document.getElementById('weightUnit');
+      const weightValueSelect = document.getElementById('weightValue');
+
+      const injuryFocus = document.getElementById('injuryFocus');
+      const injuryOtherGroup = document.getElementById('injuryOtherGroup');
+      const injuryOtherInput = document.getElementById('injuryOther');
+
+      const disable2faLink = document.getElementById('disable2faLink');
+      if (disable2faLink) {
+        disable2faLink.addEventListener('click', function (event) {
+          if (!confirm(t('settings.security.disable2faConfirm', 'Disable two-factor authentication for this account?'))) {
+            event.preventDefault();
+          }
+        });
+      }
+
+      const populateRangeSelect = function (selectEl, min, max, selectedValue, suffix) {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        for (let i = min; i <= max; i += 1) {
+          const option = document.createElement('option');
+          option.value = String(i);
+          option.textContent = suffix ? i + ' ' + suffix : String(i);
+          if (String(i) === String(selectedValue)) {
+            option.selected = true;
+          }
+          selectEl.appendChild(option);
+        }
+      };
+
+      const refreshHeightFields = function () {
+        const isMetric = heightUnitSelect.value === 'cm';
+        heightMetricGroup.classList.toggle('hidden', !isMetric);
+        heightImperialGroup.classList.toggle('hidden', isMetric);
+        heightImperialGroup.setAttribute('aria-hidden', isMetric ? 'true' : 'false');
+
+        heightCmSelect.required = isMetric;
+        heightFeetSelect.required = !isMetric;
+        heightInchesSelect.required = !isMetric;
+      };
+
+      const refreshWeightValues = function () {
+        const currentValue = weightValueSelect.value || initialValues.weightValue;
+        if (weightUnitSelect.value === 'kg') {
+          populateRangeSelect(weightValueSelect, SETTINGS_ENUMS.weightKg.min, SETTINGS_ENUMS.weightKg.max, currentValue, 'kg');
+        } else {
+          populateRangeSelect(weightValueSelect, SETTINGS_ENUMS.weightLbs.min, SETTINGS_ENUMS.weightLbs.max, currentValue, 'lbs');
+        }
+      };
+
+      const refreshInjuryOther = function () {
+        const isOther = injuryFocus.value === 'other';
+        injuryOtherGroup.classList.toggle('hidden', !isOther);
+        injuryOtherGroup.setAttribute('aria-hidden', isOther ? 'false' : 'true');
+        injuryOtherInput.required = false;
+      };
+
+      populateRangeSelect(heightCmSelect, SETTINGS_ENUMS.heightCm.min, SETTINGS_ENUMS.heightCm.max, initialValues.heightCm, 'cm');
+      populateRangeSelect(heightFeetSelect, SETTINGS_ENUMS.heightFeet.min, SETTINGS_ENUMS.heightFeet.max, initialValues.heightFeet, 'ft');
+      populateRangeSelect(heightInchesSelect, SETTINGS_ENUMS.heightInches.min, SETTINGS_ENUMS.heightInches.max, initialValues.heightInches, 'in');
+      refreshWeightValues();
+      refreshHeightFields();
+      refreshInjuryOther();
+
+      heightUnitSelect.value = initialValues.heightUnit;
+      weightUnitSelect.value = initialValues.weightUnit;
+      refreshHeightFields();
+      refreshWeightValues();
+
+      heightUnitSelect.addEventListener('change', refreshHeightFields);
+      weightUnitSelect.addEventListener('change', refreshWeightValues);
+      injuryFocus.addEventListener('change', refreshInjuryOther);
+
+      const togglePasswordForm = document.getElementById('togglePasswordForm');
+      const passwordForm = document.getElementById('passwordForm');
+      if (togglePasswordForm && passwordForm) {
+        togglePasswordForm.addEventListener('click', function () {
+          passwordForm.classList.toggle('hidden-panel');
+        });
+      }
+
+      const viewSessionsBtn = document.getElementById('viewSessionsBtn');
+      const exportDeleteDataBtn = document.getElementById('exportDeleteDataBtn');
+      if (viewSessionsBtn) {
+        viewSessionsBtn.addEventListener('click', function () {
+          alert(t('settings.security.viewSessionsFuture', 'Active session management will be available in a future update.'));
+        });
+      }
+      if (exportDeleteDataBtn) {
+        exportDeleteDataBtn.addEventListener('click', function () {
+          alert(t('settings.security.exportDeleteFuture', 'Data export and deletion tools will be available in a future update.'));
+        });
+      }
+
+      document.querySelectorAll('.support-link').forEach(function (button) {
+        button.addEventListener('click', function () {
+          const targetKey = button.getAttribute('data-target');
+          const targetLabel = targetKey ? t(targetKey, targetKey) : t('settings.support.fallback', 'Support page');
+          alert(targetLabel + ' ' + t('settings.support.notConnected', 'is not connected yet.'));
+        });
+      });
+
+      // Workout & Recovery Preferences: persisted per-user via API.
+      const workoutPrefsStatus = document.getElementById('workoutPrefsStatus');
+      const workoutPrefsElements = {
+        preferredWorkoutDurationMinutes: document.getElementById('workoutDuration'),
+        recoveryDayRemindersEnabled: document.getElementById('recoveryDayReminders'),
+        painFeedbackAfterWorkoutsEnabled: document.getElementById('painFeedbackAfterWorkouts'),
+        autoAdjustDifficultyEnabled: document.getElementById('autoAdjustDifficulty'),
+        conservativeProgressionEnabled: document.getElementById('conservativeProgressionMode')
+      };
+
+      let workoutPrefsState = null;
+      let workoutPrefsSaveTimeout = null;
+      let workoutPrefsEventsBound = false;
+      const fallbackWorkoutPrefs = {
+        preferredWorkoutDurationMinutes: 30,
+        recoveryDayRemindersEnabled: false,
+        painFeedbackAfterWorkoutsEnabled: true,
+        autoAdjustDifficultyEnabled: true,
+        conservativeProgressionEnabled: false
+      };
+
+      const setWorkoutStatus = function (message, type) {
+        if (!workoutPrefsStatus) return;
+        workoutPrefsStatus.textContent = message || '';
+        workoutPrefsStatus.style.color = type === 'error' ? '#9b1c1c' : '#4b6070';
+      };
+
+      const showSavedStatus = function () {
+        setWorkoutStatus(t('settings.status.saved', 'Changes have been saved.'), 'info');
+        if (workoutPrefsSaveTimeout) {
+          clearTimeout(workoutPrefsSaveTimeout);
+        }
+        workoutPrefsSaveTimeout = setTimeout(function () {
+          setWorkoutStatus('', 'info');
+        }, 1200);
+      };
+
+      const applyWorkoutPrefsToUi = function (prefs) {
+        workoutPrefsElements.preferredWorkoutDurationMinutes.value = String(prefs.preferredWorkoutDurationMinutes);
+        workoutPrefsElements.recoveryDayRemindersEnabled.checked = !!prefs.recoveryDayRemindersEnabled;
+        workoutPrefsElements.painFeedbackAfterWorkoutsEnabled.checked = !!prefs.painFeedbackAfterWorkoutsEnabled;
+        workoutPrefsElements.autoAdjustDifficultyEnabled.checked = !!prefs.autoAdjustDifficultyEnabled;
+        workoutPrefsElements.conservativeProgressionEnabled.checked = !!prefs.conservativeProgressionEnabled;
+      };
+
+      const patchWorkoutPreference = async function (key, value, rollbackValue) {
+        setWorkoutStatus(t('settings.status.saving', 'Saving...'), 'info');
+        try {
+          const response = await fetch('/api/preferences/workout-recovery', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ [key]: value })
+          });
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || t('settings.status.failedSavePreference', 'Failed to save preference.'));
+          }
+          workoutPrefsState = result.data;
+          applyWorkoutPrefsToUi(workoutPrefsState);
+          showSavedStatus();
+        } catch (error) {
+          workoutPrefsState[key] = rollbackValue;
+          applyWorkoutPrefsToUi(workoutPrefsState);
+          setWorkoutStatus(error.message || t('settings.status.failedSavePreference', 'Failed to save preference.'), 'error');
+        }
+      };
+
+      const bindWorkoutPreferenceEvents = function () {
+        if (workoutPrefsEventsBound) return;
+        workoutPrefsEventsBound = true;
+
+        workoutPrefsElements.preferredWorkoutDurationMinutes.addEventListener('change', function () {
+          const previous = workoutPrefsState.preferredWorkoutDurationMinutes;
+          const next = Number(workoutPrefsElements.preferredWorkoutDurationMinutes.value);
+          workoutPrefsState.preferredWorkoutDurationMinutes = next;
+          patchWorkoutPreference('preferredWorkoutDurationMinutes', next, previous);
+        });
+
+        [
+          'recoveryDayRemindersEnabled',
+          'painFeedbackAfterWorkoutsEnabled',
+          'autoAdjustDifficultyEnabled',
+          'conservativeProgressionEnabled'
+        ].forEach(function (key) {
+          const el = workoutPrefsElements[key];
+          el.addEventListener('change', function () {
+            const previous = workoutPrefsState[key];
+            const next = !!el.checked;
+            workoutPrefsState[key] = next;
+            patchWorkoutPreference(key, next, previous);
+          });
+        });
+      };
+
+      const loadWorkoutPreferences = async function () {
+        setWorkoutStatus(t('settings.status.loadingWorkoutPrefs', 'Loading your preferences...'), 'info');
+        try {
+          const response = await fetch('/api/preferences/workout-recovery', { method: 'GET' });
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || t('settings.status.failedLoadWorkoutPrefs', 'Could not load workout preferences.'));
+          }
+          workoutPrefsState = result.data;
+          applyWorkoutPrefsToUi(workoutPrefsState);
+          setWorkoutStatus('', 'info');
+          bindWorkoutPreferenceEvents();
+        } catch (error) {
+          workoutPrefsState = Object.assign({}, fallbackWorkoutPrefs);
+          applyWorkoutPrefsToUi(workoutPrefsState);
+          bindWorkoutPreferenceEvents();
+          setWorkoutStatus(error.message || t('settings.status.failedLoadWorkoutPrefs', 'Could not load workout preferences.'), 'error');
+        }
+      };
+
+      loadWorkoutPreferences();
+
+      // Notifications Preferences: persisted per-user via API.
+      const notificationPrefsStatus = document.getElementById('notificationPrefsStatus');
+      const notificationPrefsElements = {
+        workoutRemindersEnabled: document.getElementById('workoutReminders'),
+        restDayRemindersEnabled: document.getElementById('restDayReminders'),
+        progressCheckInsEnabled: document.getElementById('progressCheckins'),
+        routineRecommendationsEnabled: document.getElementById('routineRecommendations')
+      };
+
+      let notificationPrefsState = null;
+      let notificationEventsBound = false;
+      let notificationStatusTimeout = null;
+      const fallbackNotificationPrefs = {
+        workoutRemindersEnabled: true,
+        restDayRemindersEnabled: true,
+        progressCheckInsEnabled: false,
+        routineRecommendationsEnabled: true
+      };
+
+      const setNotificationStatus = function (message, type) {
+        if (!notificationPrefsStatus) return;
+        notificationPrefsStatus.textContent = message || '';
+        notificationPrefsStatus.style.color = type === 'error' ? '#9b1c1c' : '#4b6070';
+      };
+
+      const showNotificationSaved = function () {
+        setNotificationStatus(t('settings.status.saved', 'Changes have been saved.'), 'info');
+        if (notificationStatusTimeout) clearTimeout(notificationStatusTimeout);
+        notificationStatusTimeout = setTimeout(function () {
+          setNotificationStatus('', 'info');
+        }, 1200);
+      };
+
+      const applyNotificationPrefsToUi = function (prefs) {
+        notificationPrefsElements.workoutRemindersEnabled.checked = !!prefs.workoutRemindersEnabled;
+        notificationPrefsElements.restDayRemindersEnabled.checked = !!prefs.restDayRemindersEnabled;
+        notificationPrefsElements.progressCheckInsEnabled.checked = !!prefs.progressCheckInsEnabled;
+        notificationPrefsElements.routineRecommendationsEnabled.checked = !!prefs.routineRecommendationsEnabled;
+      };
+
+      const patchNotificationPreference = async function (key, value, rollbackValue) {
+        setNotificationStatus(t('settings.status.saving', 'Saving...'), 'info');
+        try {
+          const response = await fetch('/api/preferences/notifications', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ [key]: value })
+          });
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || t('settings.status.failedSaveNotificationPreference', 'Failed to save notification preference.'));
+          }
+          notificationPrefsState = result.data;
+          applyNotificationPrefsToUi(notificationPrefsState);
+          showNotificationSaved();
+        } catch (error) {
+          notificationPrefsState[key] = rollbackValue;
+          applyNotificationPrefsToUi(notificationPrefsState);
+          setNotificationStatus(error.message || t('settings.status.failedSaveNotificationPreference', 'Failed to save notification preference.'), 'error');
+        }
+      };
+
+      const bindNotificationPreferenceEvents = function () {
+        if (notificationEventsBound) return;
+        notificationEventsBound = true;
+
+        Object.keys(notificationPrefsElements).forEach(function (key) {
+          const el = notificationPrefsElements[key];
+          if (!el) return;
+          el.addEventListener('change', function () {
+            const previous = notificationPrefsState[key];
+            const next = !!el.checked;
+            notificationPrefsState[key] = next;
+            patchNotificationPreference(key, next, previous);
+          });
+        });
+      };
+
+      const loadNotificationPreferences = async function () {
+        setNotificationStatus(t('settings.status.loadingNotificationPrefs', 'Loading notification preferences...'), 'info');
+        try {
+          const response = await fetch('/api/preferences/notifications', { method: 'GET' });
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || t('settings.status.failedLoadNotificationPrefs', 'Could not load notification preferences.'));
+          }
+          notificationPrefsState = result.data;
+          applyNotificationPrefsToUi(notificationPrefsState);
+          bindNotificationPreferenceEvents();
+          setNotificationStatus('', 'info');
+        } catch (error) {
+          notificationPrefsState = Object.assign({}, fallbackNotificationPrefs);
+          applyNotificationPrefsToUi(notificationPrefsState);
+          bindNotificationPreferenceEvents();
+          setNotificationStatus(error.message || t('settings.status.failedLoadNotificationPrefs', 'Could not load notification preferences.'), 'error');
+        }
+      };
+
+      loadNotificationPreferences();
+
+      // Persist app-level preferences locally. Theme also applies globally.
+      const storeKey = 'physioapp_settings_misc_state';
+      const defaultState = {
+        app: {
+          themeSelector: 'system',
+          languageSelector: 'english',
+          unitsSelector: 'metric'
+        }
+      };
+
+      let state = defaultState;
+      try {
+        const saved = localStorage.getItem(storeKey);
+        if (saved) {
+          state = Object.assign({}, defaultState, JSON.parse(saved));
+          state.app = Object.assign({}, defaultState.app, state.app || {});
+        }
+      } catch (err) {
+        state = defaultState;
+      }
+
+      const saveState = function () {
+        localStorage.setItem(storeKey, JSON.stringify(state));
+      };
+
+      const applyThemeFromSelector = function (themeValue) {
+        if (window.PhysioTheme && typeof window.PhysioTheme.setTheme === 'function') {
+          window.PhysioTheme.setTheme(themeValue);
+        }
+      };
+
+      const applyLanguageFromSelector = function (languageValue) {
+        if (window.PhysioLanguage && typeof window.PhysioLanguage.setLanguage === 'function') {
+          window.PhysioLanguage.setLanguage(languageValue);
+        }
+      };
+      const languageStatus = document.getElementById('languageStatus');
+      const setLanguageStatus = function (message, type) {
+        if (!languageStatus) return;
+        languageStatus.textContent = message || '';
+        languageStatus.style.color = type === 'error' ? '#9b1c1c' : '#4b6070';
+      };
+
+      ['themeSelector', 'languageSelector', 'unitsSelector'].forEach(function (id) {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+
+        if (id === 'themeSelector' && window.PhysioTheme && typeof window.PhysioTheme.getThemePreference === 'function') {
+          sel.value = window.PhysioTheme.getThemePreference();
+          state.app.themeSelector = sel.value;
+          saveState();
+        } else if (id === 'languageSelector' && window.PhysioLanguage && typeof window.PhysioLanguage.getLanguagePreference === 'function') {
+          sel.value = window.PhysioLanguage.getLanguagePreference();
+          state.app.languageSelector = sel.value;
+          saveState();
+        } else {
+          sel.value = state.app[id];
+        }
+
+        sel.addEventListener('change', function () {
+          state.app[id] = sel.value;
+          if (id === 'themeSelector') {
+            applyThemeFromSelector(sel.value);
+          }
+          if (id === 'languageSelector') {
+            applyLanguageFromSelector(sel.value);
+            const selectedText = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '';
+            const base = t('settings.status.languageChanged', 'Language changed to');
+            setLanguageStatus(base + ': ' + selectedText + '.', 'info');
+          }
+          saveState();
+        });
+      });
+
+      // Ensure language is applied after all selectors initialize (prevents stale/cached state race).
+      if (window.PhysioLanguage && typeof window.PhysioLanguage.applyLanguage === 'function') {
+        const langSel = document.getElementById('languageSelector');
+        const currentLanguage = (langSel && langSel.value) || window.PhysioLanguage.getLanguagePreference();
+        window.PhysioLanguage.applyLanguage(currentLanguage);
+      }
+    });
+  </script>
 </body>
 </html>

@@ -46,11 +46,27 @@ const twofaDisableLimiter = createRateLimiter({
         res.status(429).render('twofa-disable', { error: 'Too many attempts. Try again later.' })
 });
 const settingsController = require('../controllers/settingsController');            //import settings controller
+const workoutPreferencesApiController = require('../controllers/workoutPreferencesApiController');
+const workoutPainFeedbackController = require('../controllers/workoutPainFeedbackController');
+const notificationPreferencesApiController = require('../controllers/notificationPreferencesApiController');
+const progressCheckInController = require('../controllers/progressCheckInController');
+const notificationLogController = require('../controllers/notificationLogController');
+const notificationJobsController = require('../controllers/notificationJobsController');
 
 // — Settings routes —
 router.post('/settings/profile', checkAuthenticated, settingsController.updateProfile);
 
 router.post('/settings/password', checkAuthenticated, settingsController.updatePassword);
+
+// — Workout recovery preferences API —
+router.get('/api/preferences/workout-recovery', checkAuthenticated, workoutPreferencesApiController.getWorkoutRecoveryPreferences);
+router.patch('/api/preferences/workout-recovery', checkAuthenticated, workoutPreferencesApiController.patchWorkoutRecoveryPreferences);
+router.post('/api/workouts/pain-feedback', checkAuthenticated, workoutPainFeedbackController.submitWorkoutPainFeedback);
+router.get('/api/preferences/notifications', checkAuthenticated, notificationPreferencesApiController.getNotificationPreferences);
+router.patch('/api/preferences/notifications', checkAuthenticated, notificationPreferencesApiController.patchNotificationPreferences);
+router.post('/api/progress-checkins', checkAuthenticated, progressCheckInController.submitProgressCheckIn);
+router.post('/api/notifications/:id/click', checkAuthenticated, notificationLogController.markNotificationClicked);
+router.post('/internal/jobs/notifications/daily', notificationJobsController.runDailyNotificationJob);
 
 // — Setup 2FA —
 router.get( '/twofa/setup',  checkAuthenticated, twofaCtrl.getTwofaSetup);

@@ -87,7 +87,28 @@ const loginUser = async (name, password) => {
   }
 }
 const getUserById = async (id) => {
-  const [rows] = await db.query('SELECT id, username, twofa_enabled, twofa_secret FROM `User` WHERE id = ?',[id] );
+  const [rows] = await db.query(
+    `SELECT
+      id,
+      username,
+      twofa_enabled,
+      twofa_secret,
+      gender,
+      age,
+      height_unit,
+      height_cm,
+      height_ft,
+      height_in,
+      weight_unit,
+      weight_value,
+      injury_focus,
+      injury_focus_other,
+      condition_focus,
+      rehab_level
+    FROM \`User\`
+    WHERE id = ?`,
+    [id]
+  );
   return rows[0] || null;
 };
 
@@ -117,4 +138,19 @@ const getIdofUser = async (userName) => {
   }
 }
 
-module.exports = { registerUser, loginUser, isUsernameTaken, isEmailTaken, enableTwoFactor, disableTwoFactor, getIdofUser, getUserById, verifyPassword };
+const getAllUserIds = async () => {
+  const [rows] = await db.query('SELECT id FROM `User`');
+  return rows.map((row) => Number(row.id)).filter((id) => Number.isInteger(id) && id > 0);
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  isUsernameTaken,
+  isEmailTaken,
+  enableTwoFactor,
+  disableTwoFactor,
+  getIdofUser,
+  getUserById,
+  getAllUserIds
+};
