@@ -25,6 +25,7 @@
                 <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
                 <a class="nav-link" href="/showRoutine">📅 Routines</a>
                 <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+                <a class="nav-link" href="/goals">🎯 Your Goals</a>
                 <a class="nav-link" href="/about">ℹ️ About Us</a>
                 <a class="nav-link" href="/settings">⚙️ Settings</a>
             </div>
@@ -32,11 +33,7 @@
 
         </aside>
         <div class="form-card animate__animated animate__fadeIn">
-            <h1 class="animate__animated animate__bounceInUp">
-        <p>
-            What would you like to do today?
-            <!-- form calls the route to the post action for the categorySelectorController which saves the category
-            in the sesion then renders the muscle group view.-->
+            <h1 class="animate__animated animate__bounceInUp">What would you like to do today?</h1>
             <form action="/categorySelect" method="post">
                 <br>
                 <label for="categoryInput">Workout Type:</label>
@@ -54,7 +51,9 @@
                 </select>
                 <br>
                 <button type="submit">Submit</button>
-        </p>
+            </form>
+        </div>
+    </div>
     <script>
         const hamburgerBtn = document.getElementById("hamburgerBtn");
         const sidebar = document.getElementById("sidebar");

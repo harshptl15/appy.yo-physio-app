@@ -213,6 +213,7 @@ select {
   left: -260px; /* hidden initially */
   width: 250px;
   height: 85%;
+  pointer-events: none;
   background-color: #111;
   padding: 80px 20px 20px; /* extra top padding so links don't hide behind hamburger */
   display: flex;
@@ -225,6 +226,7 @@ select {
 
 .sidebar.open {
   left: 0;
+  pointer-events: auto;
 }
 
 .sidebar h2 {

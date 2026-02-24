@@ -206,12 +206,13 @@ button:hover {
   border-radius: 6px;
 }
 
-/* Sidebar styling */
+/* Sidebar styling - pointer-events: none when closed so it doesn't block clicks on main content */
 .sidebar {
   position: fixed;
   top: 0;
   left: -260px; /* hidden initially */
   width: 250px;
+  pointer-events: none;
   height: 85%;
   background-color: #111;
   padding: 80px 20px 20px; /* extra top padding so links don't hide behind hamburger */
@@ -225,6 +226,7 @@ button:hover {
 
 .sidebar.open {
   left: 0;
+  pointer-events: auto;
 }
 
 .sidebar h2 {

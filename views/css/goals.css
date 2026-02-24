@@ -1,0 +1,437 @@
+/*
+ * Your Goals page - matches app style, no new DB
+ */
+
+html, body, div, span, h1, h2, h3, p, a, label, input, textarea, button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #fff;
+}
+
+body {
+  background: url('/photos/Homepage.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.78);
+  min-height: 100vh;
+  display: flex;
+  padding: 20px 0;
+}
+
+.hamburger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1100;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 250px;
+  height: 85%;
+  pointer-events: none;
+  background-color: #111;
+  padding: 80px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  left: 0;
+  pointer-events: auto;
+}
+
+.sidebar h2 { color: #fff; font-size: 1.2rem; margin-bottom: 24px; }
+.nav-link { color: #ccc; text-decoration: none; font-weight: 500; margin-bottom: 14px; display: block; }
+.nav-link:hover, .nav-link.active { color: #fff; }
+.action-btn {
+  background: #fff; color: #111; padding: 12px 20px; border: none; font-weight: bold;
+  border-radius: 8px; text-transform: uppercase; cursor: pointer; text-decoration: none; text-align: center; margin-top: auto;
+}
+.action-btn:hover { background: #ddd; }
+
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 20px 40px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 44px 40px;
+  width: 100%;
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.form-card h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+.subtitle { color: #aaa; font-size: 1rem; margin-bottom: 24px; }
+
+.success-msg {
+  background: rgba(76, 175, 80, 0.25);
+  color: #a5d6a7;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+/* Your saved goals box */
+.saved-goals-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.saved-goals-box h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.saved-muscles {
+  font-size: 1rem;
+  color: #ddd;
+  margin-bottom: 8px;
+}
+
+.saved-meta {
+  font-size: 0.9rem;
+  color: #999;
+  margin-bottom: 14px;
+}
+
+.saved-value {
+  text-transform: capitalize;
+  color: #bbb;
+}
+
+.saved-notes {
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Saved goals list: each row = check + body part / goal text (clickable) + X */
+.saved-goals-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.saved-goal-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.saved-goal-row:last-child { margin-bottom: 0; }
+.saved-goal-row.completed { opacity: 0.75; }
+.saved-goal-row.completed .goal-muscle-name,
+.saved-goal-row.completed .goal-text-display { text-decoration: line-through; color: #999; }
+
+.goal-check-form { flex-shrink: 0; }
+.goal-remove-form { flex-shrink: 0; }
+
+.goal-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.check-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.saved-goal-row.completed .check-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.x-btn {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #999;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.x-btn:hover {
+  background: rgba(220, 80, 80, 0.3);
+  border-color: rgba(220, 80, 80, 0.5);
+  color: #fff;
+}
+
+.goal-text-wrap {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.goal-text-wrap:hover .goal-muscle-name { color: #fff; }
+.goal-text-wrap:hover .goal-text-display { color: #ccc; }
+
+.goal-muscle-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.goal-text-display {
+  font-size: 0.9rem;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.goal-text-display:empty::before,
+.goal-text-wrap .goal-text-display:not(:empty) { }
+/* placeholder when empty is "Click to add your goal…" from server */
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-content {
+  background: rgba(30, 30, 30, 0.98);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 28px 32px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.modal-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.modal-input::placeholder { color: #777; }
+.modal-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.cancel-btn:hover { background: rgba(255, 255, 255, 0.18); }
+
+.save-btn {
+  background: #fff;
+  color: #111;
+}
+
+.save-btn:hover { background: #e0e0e0; }
+
+.section { margin-bottom: 28px; }
+.section h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; color: #fff; }
+.section-hint { color: #999; font-size: 0.9rem; margin-bottom: 14px; }
+
+.muscle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.muscle-tile {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+  user-select: none;
+}
+
+.muscle-tile:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.muscle-tile.selected {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(76, 175, 80, 0.9);
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.muscle-tile input[type="checkbox"] { display: none; }
+.tile-label { font-size: 0.9rem; }
+
+.intensity-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.intensity-tile {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.intensity-tile:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.intensity-tile.selected {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.intensity-tile input[type="radio"] { display: none; }
+.intensity-label { font-weight: 700; font-size: 0.95rem; }
+
+.notes-input {
+  width: 100%;
+  padding: 14px 18px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.notes-input::placeholder { color: #777; }
+.notes-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  background: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 8px;
+}
+
+.submit-btn:hover { background: #e0e0e0; }
+
+@media (max-width: 768px) {
+  .main-wrapper { padding: 80px 16px 30px 16px; }
+  .form-card { padding: 28px 20px; }
+  .muscle-grid { grid-template-columns: repeat(2, 1fr); }
+  .intensity-options { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .intensity-options { grid-template-columns: 1fr; }
+}

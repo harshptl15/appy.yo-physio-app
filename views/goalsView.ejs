@@ -1,0 +1,172 @@
+<!--
+ Your Goals - save goals, click body part to type goal, list with checkmark and X
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Goals - Physio App</title>
+  <link rel="stylesheet" href="css/goals.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body>
+  <div class="overlay">
+    <button class="hamburger" id="hamburgerBtn">☰</button>
+
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <h2>👋 <%= user.username %></h2>
+        <a class="nav-link" href="/dashboard">📊 Dashboard</a>
+        <a class="nav-link" href="/muscleGroup?fresh=1">💪 Exercises</a>
+        <a class="nav-link" href="/showRoutine">📅 Routines</a>
+        <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+        <a class="nav-link active" href="/goals">🎯 Your Goals</a>
+        <a class="nav-link" href="/about">ℹ️ About Us</a>
+        <a class="nav-link" href="/settings">⚙️ Settings</a>
+      </div>
+      <a href="/logout" class="action-btn logout-btn">Logout</a>
+    </aside>
+
+    <main class="main-wrapper">
+      <div class="form-card animate__animated animate__fadeIn">
+        <h1 class="animate__animated animate__fadeInDown">🎯 Your Goals</h1>
+        <p class="subtitle">Choose what you want to focus on and save. Click a body part to write exactly what you want to do.</p>
+
+        <% if (success) { %>
+        <div class="success-msg animate__animated animate__fadeIn">✓ Your goals have been saved!</div>
+        <% } %>
+
+        <% if (savedGoalsList && savedGoalsList.length > 0) { %>
+        <div class="saved-goals-box">
+          <h2>Your saved goals</h2>
+          <% if (savedIntensity) { %>
+          <p class="saved-meta">Intensity: <span class="saved-value"><%= savedIntensity %></span></p>
+          <% } %>
+          <ul class="saved-goals-list">
+            <% savedGoalsList.forEach(function(item) { %>
+            <li class="saved-goal-row <%= item.completed ? 'completed' : '' %>">
+              <form action="/goals/toggle-complete" method="post" class="goal-check-form">
+                <input type="hidden" name="muscleId" value="<%= item.muscleId %>">
+                <button type="submit" class="goal-btn check-btn" title="<%= item.completed ? 'Mark incomplete' : 'Mark done' %>"><%= item.completed ? '✓' : '○' %></button>
+              </form>
+              <button type="button" class="goal-text-wrap" data-muscle-id="<%= item.muscleId %>" data-muscle-name="<%= item.muscleName %>" data-goal-text="<%= encodeURIComponent(item.goalText || '') %>">
+                <span class="goal-muscle-name"><%= item.muscleName %></span>
+                <span class="goal-text-display"><%= item.goalText || 'Click to add your goal…' %></span>
+              </button>
+              <form action="/goals/remove/<%= item.muscleId %>" method="post" class="goal-remove-form" onsubmit="return confirm('Remove this goal?');">
+                <button type="submit" class="goal-btn x-btn" title="Remove">×</button>
+              </form>
+            </li>
+            <% }) %>
+          </ul>
+        </div>
+        <% } %>
+
+        <form action="/goals/save" method="post">
+          <section class="section">
+            <h2>What do you want to focus on?</h2>
+            <p class="section-hint">Select one or more areas, then save. Click a body part in the list above to type your goal.</p>
+            <div class="muscle-grid">
+              <% muscleGroups.forEach(function(muscle) { %>
+              <label class="muscle-tile <%= selectedMuscleIds.includes(muscle.id) ? 'selected' : '' %>">
+                <input type="checkbox" name="muscleIds" value="<%= muscle.id %>" <%= selectedMuscleIds.includes(muscle.id) ? 'checked' : '' %>/>
+                <span class="tile-label"><%= muscle.muscleName %></span>
+              </label>
+              <% }) %>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>How much growth?</h2>
+            <div class="intensity-options">
+              <label class="intensity-tile <%= intensity === 'slight' ? 'selected' : '' %>">
+                <input type="radio" name="intensity" value="slight" <%= intensity === 'slight' ? 'checked' : '' %>/>
+                <span class="intensity-label">Slight</span>
+              </label>
+              <label class="intensity-tile <%= intensity === 'moderate' ? 'selected' : '' %>">
+                <input type="radio" name="intensity" value="moderate" <%= intensity === 'moderate' ? 'checked' : '' %>/>
+                <span class="intensity-label">Moderate</span>
+              </label>
+              <label class="intensity-tile <%= intensity === 'significant' ? 'selected' : '' %>">
+                <input type="radio" name="intensity" value="significant" <%= intensity === 'significant' ? 'checked' : '' %>/>
+                <span class="intensity-label">Significant</span>
+              </label>
+              <label class="intensity-tile <%= intensity === 'maximum' ? 'selected' : '' %>">
+                <input type="radio" name="intensity" value="maximum" <%= intensity === 'maximum' ? 'checked' : '' %>/>
+                <span class="intensity-label">Maximum</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Notes (optional)</h2>
+            <textarea name="notes" class="notes-input" rows="3" placeholder="e.g. Recovering from shoulder strain..."><%= notes %></textarea>
+          </section>
+
+          <button type="submit" class="submit-btn">Save my goals</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: "[Chest]: Type your goal" -->
+  <div id="goalModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Chest: Type your goal</h2>
+      <form action="/goals/set-goal" method="post" id="goalForm">
+        <input type="hidden" name="muscleId" id="modalMuscleId">
+        <input type="text" name="goalText" id="modalGoalText" class="modal-input" placeholder="Grow my biceps by 1 inch before Christmas." maxlength="200" autocomplete="off">
+        <div class="modal-actions">
+          <button type="button" class="modal-btn cancel-btn" id="modalCancel">Cancel</button>
+          <button type="submit" class="modal-btn save-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+    document.querySelectorAll('.muscle-tile').forEach(function(tile) {
+      var input = tile.querySelector('input[type="checkbox"]');
+      input.addEventListener('change', function() { tile.classList.toggle('selected', input.checked); });
+    });
+    document.querySelectorAll('.intensity-tile').forEach(function(tile) {
+      var input = tile.querySelector('input[type="radio"]');
+      input.addEventListener('change', function() {
+        document.querySelectorAll('.intensity-tile').forEach(function(t) { t.classList.remove('selected'); });
+        if (input.checked) tile.classList.add('selected');
+      });
+    });
+
+    var modal = document.getElementById('goalModal');
+    var modalTitle = document.getElementById('modalTitle');
+    var modalMuscleId = document.getElementById('modalMuscleId');
+    var modalGoalText = document.getElementById('modalGoalText');
+    var goalForm = document.getElementById('goalForm');
+
+    document.querySelectorAll('.goal-text-wrap').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var name = this.getAttribute('data-muscle-name');
+        var id = this.getAttribute('data-muscle-id');
+        var text = decodeURIComponent(this.getAttribute('data-goal-text') || '');
+        modalTitle.textContent = name + ': Type your goal';
+        modalMuscleId.value = id;
+        modalGoalText.value = text;
+        modalGoalText.focus();
+        modal.classList.add('open');
+      });
+    });
+
+    document.getElementById('modalCancel').addEventListener('click', function() {
+      modal.classList.remove('open');
+    });
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+  </script>
+</body>
+</html>

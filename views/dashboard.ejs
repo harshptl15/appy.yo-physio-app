@@ -20,6 +20,7 @@ This is the dashboard, landing page after login. Needs lots of work. Most things
     <aside class="sidebar">
       <div>
         <h2>👋 Welcome, <%= user.username %></h2>
+<<<<<<< HEAD
         <a class="nav-link" href="/muscleGroup">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
         <a class="nav-link" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
         <a class="nav-link" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
@@ -28,6 +29,17 @@ This is the dashboard, landing page after login. Needs lots of work. Most things
         <a class="nav-link" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
         <a class="nav-link" href="/twofa/setup">🔒 <span data-i18n="dashboard.nav.enable2fa">Enable 2FA</span></a>
         <a class="nav-link" href="/twofa/disable">🔓 <span data-i18n="dashboard.nav.disable2fa">Disable 2FA</span></a>
+=======
+        <a class="nav-link" href="/muscleGroup?fresh=1">💪 Exercises</a>
+        <a class="nav-link" href="/showRoutine">📅 Routines</a>
+        <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
+        <a class="nav-link" href="/goals">🎯 Your Goals</a>
+        <a class="nav-link" href="/about">ℹ️ About Us</a>
+        <a class="nav-link" href="/info">📘 How To Use</a>
+        <a class="nav-link" href="/settings">⚙️ Settings</a>
+        <a class="nav-link" href="/twofa/setup">🔒 Enable 2FA</a>
+        <a class="nav-link" href="/twofa/disable">🔓 Disable 2FA</a>
+>>>>>>> 1ab4fd9 (Created Your Goals Page)
       </div>
       <a href="/logout" class="action-btn" data-i18n="dashboard.logout">Logout</a>
     </aside>
