@@ -21,15 +21,13 @@ const exerciseRoutineController = require('../controllers/exerciseRoutineControl
 const favouriteExercisesController = require('../controllers/favouriteExercisesController'); //import favourite exercises controller
 const twofaCtrl     = require('../controllers/twofaController');                //import 2FA controller
 const settingsController = require('../controllers/settingsController');            //import settings controller
-<<<<<<< HEAD
+const goalsController = require('../controllers/goalsController');                  //import goals controller
 const workoutPreferencesApiController = require('../controllers/workoutPreferencesApiController');
 const workoutPainFeedbackController = require('../controllers/workoutPainFeedbackController');
 const notificationPreferencesApiController = require('../controllers/notificationPreferencesApiController');
 const progressCheckInController = require('../controllers/progressCheckInController');
 const notificationLogController = require('../controllers/notificationLogController');
 const notificationJobsController = require('../controllers/notificationJobsController');
-=======
-const goalsController = require('../controllers/goalsController');                  //import goals controller
 
 // — Goals routes —
 router.get('/goals', checkAuthenticated, goalsController.showGoalsView);
@@ -37,7 +35,6 @@ router.post('/goals/save', checkAuthenticated, goalsController.saveGoals);
 router.post('/goals/set-goal', checkAuthenticated, goalsController.setMuscleGoal);
 router.post('/goals/toggle-complete', checkAuthenticated, goalsController.toggleComplete);
 router.post('/goals/remove/:muscleId', checkAuthenticated, goalsController.removeGoal);
->>>>>>> 1ab4fd9 (Created Your Goals Page)
 
 // — Settings routes —
 router.post('/settings/profile', checkAuthenticated, settingsController.updateProfile);

@@ -57,6 +57,10 @@ const getWorkoutRecoveryPreferences = async (req, res) => {
     return res.status(200).json({ data: prefs });
   } catch (error) {
     console.error('Failed to load workout preferences:', error);
+    if (error && (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_USER_ID')) {
+      delete req.session.user;
+      return res.status(401).json({ error: 'Session user is invalid. Please log in again.' });
+    }
     if (error && error.code === 'ER_NO_SUCH_TABLE') {
       return res.status(500).json({
         error: 'Workout preferences schema is missing. Run workout_recovery_preferences_migration.sql and retry.'
@@ -88,6 +92,10 @@ const patchWorkoutRecoveryPreferences = async (req, res) => {
     return res.status(200).json({ data: updated });
   } catch (error) {
     console.error('Failed to update workout preferences:', error);
+    if (error && (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_USER_ID')) {
+      delete req.session.user;
+      return res.status(401).json({ error: 'Session user is invalid. Please log in again.' });
+    }
     if (error && error.code === 'ER_NO_SUCH_TABLE') {
       return res.status(500).json({
         error: 'Workout preferences schema is missing. Run workout_recovery_preferences_migration.sql and retry.'

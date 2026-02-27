@@ -217,14 +217,23 @@ const justShowTheView = async (req, res) => {
 };
 
 const showExerciseRoutineView = async (req, res) => {
-  const exerciseRoutineIds = getExerciseResultsIdsFromView(req, res);
-  if (exerciseRoutineIds.length === 0) {
-    return res.status(400).json({ error: 'Created exercise routine is empty' });
-  }
+  try {
+    const exerciseRoutineIds = getExerciseResultsIdsFromView(req, res);
+    if (exerciseRoutineIds.length === 0) {
+      return res.status(400).json({ error: 'Created exercise routine is empty' });
+    }
 
-  const inputExerciseDTOs = exerciseRoutineIds.map((exerciseId) => new ExerciseDTO({ id: exerciseId }));
-  await justAddExercisesToRoutine(req, res, inputExerciseDTOs);
-  return justShowTheView(req, res);
+    const inputExerciseDTOs = exerciseRoutineIds.map((exerciseId) => new ExerciseDTO({ id: exerciseId }));
+    await justAddExercisesToRoutine(req, res, inputExerciseDTOs);
+    return justShowTheView(req, res);
+  } catch (error) {
+    console.error('Failed to build exercise routine:', error);
+    if (error && (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_USER_ID')) {
+      delete req.session.user;
+      return res.status(401).send('Session user is invalid. Please log in again.');
+    }
+    return res.status(500).send('Could not create exercise routine.');
+  }
 };
 
 const markExerciseAsFinished = async (req, res) => {

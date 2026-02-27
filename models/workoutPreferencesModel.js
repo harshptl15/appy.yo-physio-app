@@ -18,6 +18,25 @@ const DB_COLUMNS = {
   conservativeProgressionEnabled: 'conservative_progression_enabled'
 };
 
+const toValidUserId = (rawUserId) => {
+  const parsed = Number(rawUserId);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    const error = new Error('Invalid user id.');
+    error.code = 'INVALID_USER_ID';
+    throw error;
+  }
+  return parsed;
+};
+
+const assertUserExists = async (dbClient, userId, { lockForUpdate = false } = {}) => {
+  const lockClause = lockForUpdate ? ' FOR UPDATE' : '';
+  const [rows] = await dbClient.execute(
+    `SELECT id FROM \`User\` WHERE id = ?${lockClause}`,
+    [userId]
+  );
+  return rows.length > 0;
+};
+
 const toDomain = (row) => ({
   userId: row.user_id,
   preferredWorkoutDurationMinutes: row.preferred_workout_duration_minutes,
@@ -42,33 +61,59 @@ const getByUserId = async (userId) => {
 };
 
 const createDefaultsForUser = async (userId) => {
-  await db.execute(
-    `INSERT INTO Workout_Recovery_Preferences (
-      user_id,
-      preferred_workout_duration_minutes,
-      recovery_day_reminders_enabled,
-      pain_feedback_after_workouts_enabled,
-      auto_adjust_difficulty_enabled,
-      conservative_progression_enabled
-    ) VALUES (?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE user_id = user_id`,
-    [
-      userId,
-      DEFAULT_WORKOUT_RECOVERY_PREFERENCES.preferredWorkoutDurationMinutes,
-      DEFAULT_WORKOUT_RECOVERY_PREFERENCES.recoveryDayRemindersEnabled,
-      DEFAULT_WORKOUT_RECOVERY_PREFERENCES.painFeedbackAfterWorkoutsEnabled,
-      DEFAULT_WORKOUT_RECOVERY_PREFERENCES.autoAdjustDifficultyEnabled,
-      DEFAULT_WORKOUT_RECOVERY_PREFERENCES.conservativeProgressionEnabled
-    ]
-  );
+  const normalizedUserId = toValidUserId(userId);
+  const connection = await db.getConnection();
 
-  return getByUserId(userId);
+  try {
+    await connection.beginTransaction();
+    const userExists = await assertUserExists(connection, normalizedUserId, { lockForUpdate: true });
+    if (!userExists) {
+      const error = new Error(`User ${normalizedUserId} does not exist.`);
+      error.code = 'USER_NOT_FOUND';
+      throw error;
+    }
+
+    await connection.execute(
+      `INSERT INTO Workout_Recovery_Preferences (
+        user_id,
+        preferred_workout_duration_minutes,
+        recovery_day_reminders_enabled,
+        pain_feedback_after_workouts_enabled,
+        auto_adjust_difficulty_enabled,
+        conservative_progression_enabled
+      ) VALUES (?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE user_id = user_id`,
+      [
+        normalizedUserId,
+        DEFAULT_WORKOUT_RECOVERY_PREFERENCES.preferredWorkoutDurationMinutes,
+        DEFAULT_WORKOUT_RECOVERY_PREFERENCES.recoveryDayRemindersEnabled,
+        DEFAULT_WORKOUT_RECOVERY_PREFERENCES.painFeedbackAfterWorkoutsEnabled,
+        DEFAULT_WORKOUT_RECOVERY_PREFERENCES.autoAdjustDifficultyEnabled,
+        DEFAULT_WORKOUT_RECOVERY_PREFERENCES.conservativeProgressionEnabled
+      ]
+    );
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    if (error && error.code === 'ER_NO_REFERENCED_ROW_2') {
+      const fkError = new Error(`Cannot create preferences: user ${normalizedUserId} does not exist.`);
+      fkError.code = 'USER_NOT_FOUND';
+      throw fkError;
+    }
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  return getByUserId(normalizedUserId);
 };
 
 const getOrCreateByUserId = async (userId) => {
-  const existing = await getByUserId(userId);
+  const normalizedUserId = toValidUserId(userId);
+  const existing = await getByUserId(normalizedUserId);
   if (existing) return existing;
-  return createDefaultsForUser(userId);
+  return createDefaultsForUser(normalizedUserId);
 };
 
 const updateByUserId = async (userId, patch) => {
