@@ -9,12 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/setup2fa.css">
+  <script src="/js/language.js?v=4"></script>
 </head>
 <body>
   <div class="overlay">
     <form class="form-card" action="/twofa/setup" method="POST">
-      <p class="eyebrow">Security Upgrade</p>
-      <h1>Set Up Two-Factor Authentication</h1>
+      <p class="eyebrow" data-i18n="twofa.setup.eyebrow">Security Upgrade</p>
+      <h1 data-i18n="twofa.setup.title">Set Up Two-Factor Authentication</h1>
       <p class="helper">
         Connect your authenticator app to secure
         <strong><%= username || 'your account' %></strong>.
@@ -50,8 +51,8 @@
         autofocus
       >
 
-      <button type="submit">Enable 2FA</button>
-      <a href="/settings" class="secondary-link">Cancel and return to settings</a>
+      <button type="submit" data-i18n="twofa.setup.enable">Enable 2FA</button>
+      <a href="/settings" class="secondary-link" data-i18n="twofa.setup.cancel">Cancel and return to settings</a>
     </form>
   </div>
 </body>

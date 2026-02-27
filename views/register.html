@@ -17,50 +17,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Gregory Mah 041114855">
     <link rel="stylesheet" href="css/signin.css">
+    <script src="/js/language.js?v=4"></script>
     <title>Registration</title>
 </head>
 <body>
-    <button onclick="window.location.href='/dashboard'" id="homebtn">Go to homepage</button>
+    <button onclick="window.location.href='/dashboard'" id="homebtn" data-i18n="auth.goHome">Go to homepage</button>
 
     <div class="formcontainer">
-        <h1>Make your account</h1>
+        <h1 data-i18n="auth.register.title">Make your account</h1>
         <hr>
         <form action="/register" method="post" >
 
             <div class="textfield">
-                <label for="email">Email Address</label>
+                <label for="email" data-i18n="auth.register.email">Email Address</label>
                 <input type="text" name="email" id="email" placeholder="Email">
                 <span class="error" id="emailError"></span>
             </div>
 
             <div class="textfield">
-                <label for="login">Username</label>
+                <label for="login" data-i18n="auth.username">Username</label>
                 <input type="text" name="name" id="name" placeholder="Username">
                 <span class="error" id="nameError"></span>
             </div>
 
             <div class="textfield">
-                <label for="pass">Password</label>
+                <label for="pass" data-i18n="auth.password">Password</label>
                 <input type="password" name="password" id="password" placeholder="Password">
                 <span class="error" id="passwordError"></span>
             </div>
         
             <div class="textfield">
-                <label for="pass2">Re-type Password</label>
+                <label for="pass2" data-i18n="auth.register.retypePassword">Re-type Password</label>
                 <input type="password" id="pass2" placeholder="Password">
                 <span class="error" id="confirmPasswordError"></span>
             </div>
 
             <div class="checkbox">
                 <input type="checkbox" name="terms" id="terms">
-                <label for="terms">I agree to the terms and conditions</label>
+                <label for="terms" data-i18n="auth.register.terms">I agree to the terms and conditions</label>
                 <span class="error" id="termsError"></span>
             </div>
             <div class="button-row">
-                <button type="submit" id="submit">Sign Up</button>
-                <button type="reset" id="reset">Reset</button>
+                <button type="submit" id="submit" data-i18n="auth.register.submit">Sign Up</button>
+                <button type="reset" id="reset" data-i18n="auth.reset">Reset</button>
             </div>
-            <p>Have an account? Click <a href="/login" id="regbtn">here</a> to sign in</p>
+            <p><span data-i18n="auth.register.haveAccount">Have an account? Click</span> <a href="/login" id="regbtn" data-i18n="auth.here">here</a> <span data-i18n="auth.register.toSignIn">to sign in</span></p>
 
         </form>
     </div>

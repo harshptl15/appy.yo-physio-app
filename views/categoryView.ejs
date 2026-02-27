@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/category.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="/js/language.js?v=4"></script>
 
 </head>
 <body>
@@ -21,22 +22,22 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div>
-                <a class="nav-link" href="/dashboard">Dashboard</a>
-                <a class="nav-link" href="/muscleGroup">💪 Exercises</a>
-                <a class="nav-link" href="/showRoutine">📅 Routines</a>
-                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
-                <a class="nav-link" href="/goals">🎯 Your Goals</a>
-                <a class="nav-link" href="/about">ℹ️ About Us</a>
-                <a class="nav-link" href="/settings">⚙️ Settings</a>
+                <a class="nav-link" href="/dashboard"><span data-i18n="common.nav.dashboard">Dashboard</span></a>
+                <a class="nav-link" href="/muscleGroup">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
+                <a class="nav-link" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
+                <a class="nav-link" href="/goals">🎯 <span data-i18n="dashboard.cta.goals">Your Goals</span></a>
+                <a class="nav-link" href="/about">ℹ️ <span data-i18n="dashboard.nav.about">About Us</span></a>
+                <a class="nav-link" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
             </div>
-            <a href="/logout" class="action-btn logout-btn">Logout</a>
+            <a href="/logout" class="action-btn logout-btn" data-i18n="dashboard.logout">Logout</a>
 
         </aside>
         <div class="form-card animate__animated animate__fadeIn">
-            <h1 class="animate__animated animate__bounceInUp">What would you like to do today?</h1>
+            <h1 class="animate__animated animate__bounceInUp" data-i18n="category.title">What would you like to do today?</h1>
             <form action="/categorySelect" method="post">
                 <br>
-                <label for="categoryInput">Workout Type:</label>
+                <label for="categoryInput" data-i18n="category.workoutType">Workout Type:</label>
                 <!-- select is the selection list, it's name is how it transmits the selection to the controller -->
                 <select name="categoryInput" id="categoryInput">
                     <!-- categories is the variable containing an array of objects with categoryName properties,
@@ -44,13 +45,14 @@
                     as passed by the controller. -->
                     <% categories.forEach(function(category) { %>
                         <option value="<%= category.categoryName %>"
+                            data-category-key="<%= category.categoryName %>"
                             <%= category.categoryName === selectedCategory ? 'selected' : '' %>>                        
                             <%= category.categoryName %>
                         </option>
                     <% }); %>
                 </select>
                 <br>
-                <button type="submit">Submit</button>
+                <button type="submit" data-i18n="common.submit">Submit</button>
             </form>
         </div>
     </div>
@@ -61,6 +63,18 @@
         hamburgerBtn.addEventListener("click", () => {
         sidebar.classList.toggle("open");
         });
+
+        const applyDynamicTranslations = () => {
+          if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
+          const language = window.PhysioLanguage.getLanguagePreference();
+          document.querySelectorAll('#categoryInput option[data-category-key]').forEach((option) => {
+            const key = option.getAttribute('data-category-key');
+            option.textContent = window.PhysioLanguage.translateDynamic('category', key, language);
+          });
+        };
+
+        applyDynamicTranslations();
+        window.addEventListener('physio-language-changed', applyDynamicTranslations);
     </script>
 </body>
 </html>

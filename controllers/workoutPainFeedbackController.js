@@ -17,8 +17,8 @@ const ALLOWED_TRENDS = ['worse', 'same', 'better'];
 
 const submitWorkoutPainFeedback = async (req, res) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
+    const userId = Number(req.user?.id);
+    if (!Number.isInteger(userId) || userId <= 0) {
       return res.status(401).json({ error: 'Unauthorized.' });
     }
 
@@ -64,7 +64,16 @@ const submitWorkoutPainFeedback = async (req, res) => {
     const routineStats = await getRoutineStatsByUserId(userId);
     const completionRatio = routineStats.total === 0 ? 0 : Number((routineStats.completed / routineStats.total).toFixed(2));
 
-    const recentSessions = await getRecentCompletedSessionsByUserId(userId, 5);
+    let recentSessions = [];
+    try {
+      recentSessions = await getRecentCompletedSessionsByUserId(userId, 5);
+    } catch (recentSessionsError) {
+      console.warn('Failed to load recent completed sessions; continuing without history.', {
+        code: recentSessionsError?.code,
+        message: recentSessionsError?.message
+      });
+      recentSessions = [];
+    }
     const recentFeedbackBySessionId = {};
     for (const recentSession of recentSessions) {
       const feedback = await getPainFeedbackBySessionId(recentSession.id);

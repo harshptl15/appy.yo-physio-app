@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/goals.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="/js/language.js?v=4"></script>
 </head>
 <body>
   <div class="overlay">
@@ -18,20 +19,20 @@
     <aside class="sidebar" id="sidebar">
       <div>
         <h2>👋 <%= user.username %></h2>
-        <a class="nav-link" href="/dashboard">📊 Dashboard</a>
-        <a class="nav-link" href="/muscleGroup?fresh=1">💪 Exercises</a>
-        <a class="nav-link" href="/showRoutine">📅 Routines</a>
-        <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
-        <a class="nav-link active" href="/goals">🎯 Your Goals</a>
-        <a class="nav-link" href="/about">ℹ️ About Us</a>
-        <a class="nav-link" href="/settings">⚙️ Settings</a>
+        <a class="nav-link" href="/dashboard">📊 <span data-i18n="common.nav.dashboard">Dashboard</span></a>
+        <a class="nav-link" href="/muscleGroup?fresh=1">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
+        <a class="nav-link" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
+        <a class="nav-link" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
+        <a class="nav-link active" href="/goals">🎯 <span data-i18n="dashboard.cta.goals">Your Goals</span></a>
+        <a class="nav-link" href="/about">ℹ️ <span data-i18n="dashboard.nav.about">About Us</span></a>
+        <a class="nav-link" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
       </div>
-      <a href="/logout" class="action-btn logout-btn">Logout</a>
+      <a href="/logout" class="action-btn logout-btn" data-i18n="dashboard.logout">Logout</a>
     </aside>
 
     <main class="main-wrapper">
       <div class="form-card animate__animated animate__fadeIn">
-        <h1 class="animate__animated animate__fadeInDown">🎯 Your Goals</h1>
+        <h1 class="animate__animated animate__fadeInDown">🎯 <span data-i18n="goals.title">Your Goals</span></h1>
         <p class="subtitle">Choose what you want to focus on and save. Click a body part to write exactly what you want to do.</p>
 
         <% if (success) { %>
@@ -40,7 +41,7 @@
 
         <% if (savedGoalsList && savedGoalsList.length > 0) { %>
         <div class="saved-goals-box">
-          <h2>Your saved goals</h2>
+          <h2 data-i18n="goals.saved">Your saved goals</h2>
           <% if (savedIntensity) { %>
           <p class="saved-meta">Intensity: <span class="saved-value"><%= savedIntensity %></span></p>
           <% } %>
@@ -52,7 +53,7 @@
                 <button type="submit" class="goal-btn check-btn" title="<%= item.completed ? 'Mark incomplete' : 'Mark done' %>"><%= item.completed ? '✓' : '○' %></button>
               </form>
               <button type="button" class="goal-text-wrap" data-muscle-id="<%= item.muscleId %>" data-muscle-name="<%= item.muscleName %>" data-goal-text="<%= encodeURIComponent(item.goalText || '') %>">
-                <span class="goal-muscle-name"><%= item.muscleName %></span>
+                <span class="goal-muscle-name muscle-name" data-muscle-name="<%= item.muscleName %>"><%= item.muscleName %></span>
                 <span class="goal-text-display"><%= item.goalText || 'Click to add your goal…' %></span>
               </button>
               <form action="/goals/remove/<%= item.muscleId %>" method="post" class="goal-remove-form" onsubmit="return confirm('Remove this goal?');">
@@ -66,20 +67,20 @@
 
         <form action="/goals/save" method="post">
           <section class="section">
-            <h2>What do you want to focus on?</h2>
+            <h2 data-i18n="goals.focus">What do you want to focus on?</h2>
             <p class="section-hint">Select one or more areas, then save. Click a body part in the list above to type your goal.</p>
             <div class="muscle-grid">
               <% muscleGroups.forEach(function(muscle) { %>
               <label class="muscle-tile <%= selectedMuscleIds.includes(muscle.id) ? 'selected' : '' %>">
                 <input type="checkbox" name="muscleIds" value="<%= muscle.id %>" <%= selectedMuscleIds.includes(muscle.id) ? 'checked' : '' %>/>
-                <span class="tile-label"><%= muscle.muscleName %></span>
+                <span class="tile-label muscle-name" data-muscle-name="<%= muscle.muscleName %>"><%= muscle.muscleName %></span>
               </label>
               <% }) %>
             </div>
           </section>
 
           <section class="section">
-            <h2>How much growth?</h2>
+            <h2 data-i18n="goals.growth">How much growth?</h2>
             <div class="intensity-options">
               <label class="intensity-tile <%= intensity === 'slight' ? 'selected' : '' %>">
                 <input type="radio" name="intensity" value="slight" <%= intensity === 'slight' ? 'checked' : '' %>/>
@@ -101,11 +102,11 @@
           </section>
 
           <section class="section">
-            <h2>Notes (optional)</h2>
+            <h2 data-i18n="goals.notesOptional">Notes (optional)</h2>
             <textarea name="notes" class="notes-input" rows="3" placeholder="e.g. Recovering from shoulder strain..."><%= notes %></textarea>
           </section>
 
-          <button type="submit" class="submit-btn">Save my goals</button>
+          <button type="submit" class="submit-btn" data-i18n="goals.saveBtn">Save my goals</button>
         </form>
       </div>
     </main>
@@ -142,6 +143,15 @@
       });
     });
 
+    var applyDynamicTranslations = function() {
+      if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
+      var language = window.PhysioLanguage.getLanguagePreference();
+      document.querySelectorAll('.muscle-name[data-muscle-name]').forEach(function(el) {
+        var raw = el.getAttribute('data-muscle-name');
+        el.textContent = window.PhysioLanguage.translateDynamic('muscle', raw, language);
+      });
+    };
+
     var modal = document.getElementById('goalModal');
     var modalTitle = document.getElementById('modalTitle');
     var modalMuscleId = document.getElementById('modalMuscleId');
@@ -153,7 +163,10 @@
         var name = this.getAttribute('data-muscle-name');
         var id = this.getAttribute('data-muscle-id');
         var text = decodeURIComponent(this.getAttribute('data-goal-text') || '');
-        modalTitle.textContent = name + ': Type your goal';
+        var translatedName = window.PhysioLanguage && typeof window.PhysioLanguage.translateDynamic === 'function'
+          ? window.PhysioLanguage.translateDynamic('muscle', name, window.PhysioLanguage.getLanguagePreference())
+          : name;
+        modalTitle.textContent = translatedName + ': Type your goal';
         modalMuscleId.value = id;
         modalGoalText.value = text;
         modalGoalText.focus();
@@ -167,6 +180,9 @@
     modal.addEventListener('click', function(e) {
       if (e.target === modal) modal.classList.remove('open');
     });
+
+    applyDynamicTranslations();
+    window.addEventListener('physio-language-changed', applyDynamicTranslations);
   </script>
 </body>
 </html>

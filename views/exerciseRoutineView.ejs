@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/routine.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="/js/language.js?v=4"></script>
 </head>
 <body>
     <div class="overlay">
@@ -20,18 +21,18 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div>
-                <a class="nav-link" href="/dashboard">Dashboard</a>
-                <a class="nav-link" href="/muscleGroup?fresh=1">💪 Exercises</a>
-                <a class="nav-link" href="/showRoutine">📅 Routines</a>
-                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
-                <a class="nav-link" href="/goals">🎯 Your Goals</a>
-                <a class="nav-link" href="/about">ℹ️ About Us</a>
-                <a class="nav-link" href="/settings">⚙️ Settings</a>
+                <a class="nav-link" href="/dashboard"><span data-i18n="common.nav.dashboard">Dashboard</span></a>
+                <a class="nav-link" href="/muscleGroup?fresh=1">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
+                <a class="nav-link" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
+                <a class="nav-link" href="/goals">🎯 <span data-i18n="dashboard.cta.goals">Your Goals</span></a>
+                <a class="nav-link" href="/about">ℹ️ <span data-i18n="dashboard.nav.about">About Us</span></a>
+                <a class="nav-link" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
             </div>
-            <a href="/logout" class="action-btn logout-btn">Logout</a>
+            <a href="/logout" class="action-btn logout-btn" data-i18n="dashboard.logout">Logout</a>
         </aside>
         <div class="routine-card animate__animated animate__zoomIn">
-            <h1 class="animate__animated animate__fadeInDown">Your Exercise Routine</h1>
+            <h1 class="animate__animated animate__fadeInDown" data-i18n="routine.title">Your Exercise Routine</h1>
             <% if (workoutPlanMetadata) { %>
               <div class="routine-box" style="margin-bottom: 0.8rem;">
                 <p><strong>Session plan:</strong> Warmup + <%= workoutPlanMetadata.selectedExercises %> exercises</p>
@@ -56,12 +57,12 @@
          <div class="routine-list">
             <% exerciseRoutine.forEach((exercise, i) => { %>
                 <div class = "routine-box <%= exercise.goal ? 'completed' : '' %>">
-                    <p><%= exercise.exerciseName %></p>
+                    <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
                     <!-- only render the following image if the exercise.goal is true 
                     and therefore this exercise has been completed-->
                     <% if (exercise.goal) { %>
                     <span class="checkmark">✔</span>
-                        <p class="status-text">Completed</p>
+                        <p class="status-text" data-i18n="common.completed">Completed</p>
                     <% } %>
                 </div>
             <% }) %>
@@ -69,22 +70,22 @@
         <!-- div for buttons to control the entire routine -->
         <div class="btn-group">
             <form action="/restartRoutine" method="POST">
-                <button type="submit" class="btn btn-primary">Restart Routine</button>
+                <button type="submit" class="btn btn-primary" data-i18n="routine.restart">Restart Routine</button>
             </form>
-                <a href="/category" class="link-btn">🆕 New Search</a>
-                <a href="/resetAndNewSearch" class="link-btn">♻ Reset & New Search</a>
-                <a href="/getAndShowFavourites" class="link-btn">⭐ Show Favourites</a>
+                <a href="/category" class="link-btn" data-i18n="routine.newSearch">🆕 New Search</a>
+                <a href="/resetAndNewSearch" class="link-btn" data-i18n="exercises.resetNewSearch">♻ Reset & New Search</a>
+                <a href="/getAndShowFavourites" class="link-btn" data-i18n="routine.showFavourites">⭐ Show Favourites</a>
         </div>
          <!-- div for new search -->
          <!-- if all exercises in the routine are completed, show a message -->
 
         <% if (allExercisesCompleted) { %>
         <div class="all-exercises-completed success-alert">
-            <p><span class="success-icon" aria-hidden="true">✓</span> All exercises in your routine are completed!</p>
+            <p><span class="success-icon" aria-hidden="true">✓</span> <span data-i18n="routine.allCompleted">All exercises in your routine are completed!</span></p>
         </div>
         <% if (showPainFeedbackPrompt && activeWorkoutSessionId) { %>
           <div class="current-exercise pain-feedback-shell" id="painFeedbackCard">
-            <h2 class="pain-feedback-title">Post-workout pain check-in</h2>
+            <h2 class="pain-feedback-title" data-i18n="routine.painCheckin.title">Post-workout pain check-in</h2>
             <p class="pain-feedback-subtitle">Help us tailor your next session by sharing how you feel.</p>
             <form id="painFeedbackForm">
               <input type="hidden" id="workoutSessionId" value="<%= activeWorkoutSessionId %>">
@@ -142,13 +143,13 @@
               </div>
 
               <p id="painFeedbackValidation" class="validation-message" aria-live="polite"></p>
-              <button type="submit" class="btn btn-primary pain-submit-btn" id="painFeedbackSubmitBtn">Submit pain feedback</button>
+              <button type="submit" class="btn btn-primary pain-submit-btn" id="painFeedbackSubmitBtn" data-i18n="routine.painCheckin.submit">Submit pain feedback</button>
               <p id="painFeedbackStatus" class="pain-status" aria-live="polite"></p>
             </form>
           </div>
         <% } else if (!painFeedbackAfterWorkoutsEnabled) { %>
           <div class="all-exercises-completed">
-            <p>Pain check-in is disabled in your settings. Workout completed successfully.</p>
+            <p data-i18n="routine.painCheckin.disabled">Pain check-in is disabled in your settings. Workout completed successfully.</p>
           </div>
         <% } %>
         <!-- div for buttons to control the current exercise in the routine. -->
@@ -156,7 +157,7 @@
             <div class="current-exercise"></div>
                 <!-- display info on current exercise. -->
                 <h2>Now Training</h2>
-                <p><strong><%= currentExercise.exerciseName %></strong></p>
+                <p><strong class="exercise-name" data-exercise-name="<%= currentExercise.exerciseName %>"><%= currentExercise.exerciseName %></strong></p>
                 <ul>
                     <li>💡 Tips: <%= currentExercise.tips %></li>
                     <li>⚠ Common Mistakes: <%= currentExercise.commonMistakes %></li>
@@ -225,6 +226,18 @@
           painTrendSelect.addEventListener('change', () => {
             validationEl.textContent = '';
           });
+
+          const applyDynamicTranslations = () => {
+            if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
+            const language = window.PhysioLanguage.getLanguagePreference();
+            document.querySelectorAll('.exercise-name[data-exercise-name]').forEach((el) => {
+              const raw = el.getAttribute('data-exercise-name');
+              el.textContent = window.PhysioLanguage.translateDynamic('exercise', raw, language);
+            });
+          };
+
+          applyDynamicTranslations();
+          window.addEventListener('physio-language-changed', applyDynamicTranslations);
 
           updateSliderVisualState();
 

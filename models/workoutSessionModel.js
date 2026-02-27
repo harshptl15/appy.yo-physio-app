@@ -1,5 +1,22 @@
 const db = require('../db');
 
+const toPositiveInteger = (value, fieldName) => {
+  if (Array.isArray(value)) {
+    const error = new Error(`${fieldName} must not be an array.`);
+    error.code = 'INVALID_ARGUMENT';
+    throw error;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    const error = new Error(`${fieldName} must be a positive integer.`);
+    error.code = 'INVALID_ARGUMENT';
+    throw error;
+  }
+
+  return parsed;
+};
+
 const createWorkoutSession = async ({
   userId,
   preferredWorkoutDurationMinutes,
@@ -65,14 +82,28 @@ const getLastCompletedWorkoutSessionByUserId = async (userId) => {
 };
 
 const getRecentCompletedSessionsByUserId = async (userId, limit = 5) => {
-  const [rows] = await db.execute(
-    `SELECT *
+  const normalizedUserId = toPositiveInteger(userId, 'userId');
+  const normalizedLimit = toPositiveInteger(limit, 'limit');
+
+  console.debug('[Workout_Session] getRecentCompletedSessionsByUserId params', {
+    userId,
+    limit,
+    normalizedUserId,
+    normalizedLimit,
+    userIdType: typeof userId,
+    limitType: typeof limit,
+    userIdIsArray: Array.isArray(userId),
+    limitIsArray: Array.isArray(limit)
+  });
+
+  const query = `SELECT *
      FROM Workout_Session
      WHERE user_id = ? AND status = 'completed'
      ORDER BY completed_at DESC
-     LIMIT ?`,
-    [userId, limit]
-  );
+     LIMIT ${normalizedLimit}`;
+  const params = [normalizedUserId];
+  console.debug('[Workout_Session] executing query params', params, 'limit', normalizedLimit);
+  const [rows] = await db.execute(query, params);
   return rows;
 };
 

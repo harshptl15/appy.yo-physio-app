@@ -9,19 +9,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/verify2fa.css">
+  <script src="/js/language.js?v=4"></script>
 </head>
 <body>
   <div class="overlay">
     <form class="form-card" action="/twofa/verify" method="POST">
-      <p class="eyebrow">Two-Factor Check</p>
-      <h1>Verify Sign-In</h1>
-      <p class="helper">Open your authenticator app and enter the current code.</p>
+      <p class="eyebrow" data-i18n="twofa.verify.eyebrow">Two-Factor Check</p>
+      <h1 data-i18n="twofa.verify.title">Verify Sign-In</h1>
+      <p class="helper" data-i18n="twofa.verify.helper">Open your authenticator app and enter the current code.</p>
 
       <% if (typeof error !== 'undefined' && error) { %>
         <div class="error-msg"><%= error %></div>
       <% } %>
 
-      <label for="token" class="token-label">6-digit code</label>
+      <label for="token" class="token-label" data-i18n="twofa.verify.codeLabel">6-digit code</label>
       <input
         type="text"
         id="token"
@@ -35,8 +36,8 @@
         autofocus
       >
 
-      <button type="submit">Verify</button>
-      <a href="/login" class="secondary-link">Back to login</a>
+      <button type="submit" data-i18n="twofa.verify.button">Verify</button>
+      <a href="/login" class="secondary-link" data-i18n="twofa.verify.back">Back to login</a>
     </form>
   </div>
 </body>

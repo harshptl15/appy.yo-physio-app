@@ -6,6 +6,7 @@
     <title>Favourites</title>
     <link rel="stylesheet" href="css/favourites.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="/js/language.js?v=4"></script>
 </head>
 <body>
     <div class="overlay">
@@ -14,44 +15,44 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div>
-                <a class="nav-link" href="/dashboard">Dashboard</a>
-                <a class="nav-link" href="/muscleGroup?fresh=1">💪 Exercises</a>
-                <a class="nav-link" href="/showRoutine">📅 Routines</a>
-                <a class="nav-link" href="/getAndShowFavourites">⭐ Favourites</a>
-                <a class="nav-link" href="/goals">🎯 Your Goals</a>
-                <a class="nav-link" href="/about">ℹ️ About Us</a>
-                <a class="nav-link" href="/settings">⚙️ Settings</a>
+                <a class="nav-link" href="/dashboard"><span data-i18n="common.nav.dashboard">Dashboard</span></a>
+                <a class="nav-link" href="/muscleGroup?fresh=1">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
+                <a class="nav-link" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
+                <a class="nav-link" href="/goals">🎯 <span data-i18n="dashboard.cta.goals">Your Goals</span></a>
+                <a class="nav-link" href="/about">ℹ️ <span data-i18n="dashboard.nav.about">About Us</span></a>
+                <a class="nav-link" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
             </div>
-            <a href="/logout" class="action-btn logout-btn">Logout</a>
+            <a href="/logout" class="action-btn logout-btn" data-i18n="dashboard.logout">Logout</a>
         </aside>
         <div class="form-card animate__animated animate__fadeInUp">
-            <h1 class="animate__animated animate__fadeInDown">Your Favourite Exercises</h1>
+            <h1 class="animate__animated animate__fadeInDown" data-i18n="favourites.title">Your Favourite Exercises</h1>
             <form action="/submitFavouritesForm" method="POST">
                 <input type="hidden" name="numberOfFavourites" value="<%= favouriteExercises.length %>">
                 <div class="exercise-list">
                     <% favouriteExercises.forEach((exercise, i) => { %>
                         <div class="favourite-exercise-name">
-                            <p><%= exercise.exerciseName %></p>
+                            <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
                         </div>
                         <div class="favourite-exercise-block">
 
                             <div class="checkbox-group">
                                 <label class="checkbox-card">
                                     <input type="checkbox" name="addFavToRoutine<%= i %>" value="<%= exercise.id %>">
-                                    <span>Add to Routine:</span>
+                                    <span data-i18n="favourites.addToRoutine">Add to Routine:</span>
                                 </label>
                                 <label class="checkbox-card remove">
                                     <input type="checkbox" name="removeFromFavs<%= i %>" value="<%= exercise.id %>">
-                                    <span>Remove from Favourites:</span>
+                                    <span data-i18n="favourites.removeFromFavourites">Remove from Favourites:</span>
                                 </label> 
                             </div>
                         </div>
 
                     <% }) %>
                 </div>
-            <button type="submit" class="action-btn">Save Changes</button>
+            <button type="submit" class="action-btn" data-i18n="favourites.saveChanges">Save Changes</button>
             </form>
-            <a href="showRoutine" class="secondary-btn">Show Routine</a>
+            <a href="showRoutine" class="secondary-btn" data-i18n="exercises.showRoutine">Show Routine</a>
         </div>
     </div>
     <script>
@@ -61,6 +62,18 @@
         hamburgerBtn.addEventListener("click", () => {
         sidebar.classList.toggle("open");
         });
+
+        const applyDynamicTranslations = () => {
+          if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
+          const language = window.PhysioLanguage.getLanguagePreference();
+          document.querySelectorAll('.exercise-name[data-exercise-name]').forEach((el) => {
+            const raw = el.getAttribute('data-exercise-name');
+            el.textContent = window.PhysioLanguage.translateDynamic('exercise', raw, language);
+          });
+        };
+
+        applyDynamicTranslations();
+        window.addEventListener('physio-language-changed', applyDynamicTranslations);
     </script>
 </body>
 </html>

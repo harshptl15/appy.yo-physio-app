@@ -11,32 +11,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Gregory Mah 041114855">
   <link rel="stylesheet" href="css/signin.css">
+  <script src="/js/language.js?v=4"></script>
   <title>Sign in</title>
 </head>
 <body>
-  <button onclick="window.location.href='/dashboard'" id="homebtn">Go to homepage</button>
+  <button onclick="window.location.href='/dashboard'" id="homebtn" data-i18n="auth.goHome">Go to homepage</button>
   <div class="formcontainer">
-    <h1>Sign in to your account</h1>
+    <h1 data-i18n="auth.login.title">Sign in to your account</h1>
     <hr>
     <form id="login-form">
       <div class="textfield">
-        <label for="login">Username</label>
+        <label for="login" data-i18n="auth.username">Username</label>
         <input type="text" name="name" id="name" placeholder="Username" required>
         <span class="error" id="nameError"></span>
       </div>
 
       <div class="textfield">
-        <label for="pass">Password</label>
+        <label for="pass" data-i18n="auth.password">Password</label>
         <input type="password" name="password" id="password" placeholder="Password" required>
         <span class="error" id="passwordError"></span>
       </div>
 
       <div class="button-row">
-        <button type="submit" id="submit">Sign‑In</button>
-        <button type="reset" id="reset">Reset</button>
+        <button type="submit" id="submit" data-i18n="auth.login.submit">Sign‑In</button>
+        <button type="reset" id="reset" data-i18n="auth.reset">Reset</button>
       </div>
 
-      <p>Don’t have an account? Click <a href="/register" id="regbtn">here</a> to sign up</p>
+      <p><span data-i18n="auth.login.noAccount">Don’t have an account? Click</span> <a href="/register" id="regbtn" data-i18n="auth.here">here</a> <span data-i18n="auth.login.toSignUp">to sign up</span></p>
     </form>
   </div>
 
