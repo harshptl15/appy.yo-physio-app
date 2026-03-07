@@ -5,9 +5,23 @@
  */
 
 
-const express = require('express'); //import express module.
-//creating an instance of express.
+require('dotenv').config();
+const express = require('express');
+const mysql = require('mysql2');
 const app = express();
+
+const connection = mysql.createConnection(process.env.DATABASE_URL);
+
+connection.connect((err) => {
+  if (err) {
+    console.error("Database connection failed:", err);
+    return;
+  }
+  console.log("Connected to Railway MySQL!");
+});
+
+
+
 const session = require('express-session'); //import express-session for session management
 const path = require('path'); //import path module for handling file paths
 //import userRoutes used for routing to register and login views.
@@ -23,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //used for parsing application/json
 app.use(session({
-    secret: 'my-secret-key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false
 }));
@@ -107,6 +121,7 @@ app.get('/', (req, res) => {
     res.redirect('/register');
 });
 
+<<<<<<< HEAD
 app.use('/api', (req, res) => {
   res.status(404).json({ error: `API route not found: ${req.originalUrl}` });
 });
@@ -115,3 +130,9 @@ app.use('/api', (req, res) => {
 app.listen(3000, () => {
     console.log('server running on port 3000');
 })
+=======
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+>>>>>>> b223851a563dab77718c663201c933b08aae249a

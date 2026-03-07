@@ -4,24 +4,18 @@
  * @author Carter Belnap
  */
 
-//import mysql2 module
+
+// db.js
+require('dotenv').config();
 const mysql = require('mysql2');
 
-/**
- * Create a connection pool to the database.
- * Defaults match the local SQL setup in DDL.sql, but can be overridden via env vars.
- */
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'group7',
-    password: process.env.DB_PASSWORD || 'group7pwd',
-    database: process.env.DB_NAME || 'physio',
-    port: Number(process.env.DB_PORT || 3306)
-});
+// Use DATABASE_URL from Railway
+const pool = mysql.createPool(process.env.DATABASE_URL);
 
-console.log(
-    `[DB] host=${process.env.DB_HOST || 'localhost'} user=${process.env.DB_USER || 'group7'} db=${process.env.DB_NAME || 'physio'} port=${process.env.DB_PORT || 3306}`
-);
+// Export promise pool
+module.exports = pool.promise();
+
+console.log(`[DB] Connected via DATABASE_URL`);
 
 //export the pool to be used in other files.
-module.exports = pool.promise(); 
+module.exports = pool.promise();
