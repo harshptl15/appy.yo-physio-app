@@ -1,0 +1,28 @@
+<aside class="sidebar sidebar-shell" id="sidebar">
+  <div>
+    <div class="sidebar-shell__profile">
+      <p class="sidebar-shell__brand">PhysioApp</p>
+      <h2>Welcome, <%= (currentUser && currentUser.username) ? currentUser.username : 'Member' %></h2>
+    </div>
+
+    <p class="sidebar-shell__section" data-i18n="sidebar.group.main">Main</p>
+    <a class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>" href="/dashboard"><span data-i18n="common.nav.dashboard">Dashboard</span></a>
+    <a class="nav-link <%= currentPath === '/muscleGroup' ? 'active' : '' %>" href="/muscleGroup?fresh=1">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
+    <a class="nav-link <%= currentPath === '/showRoutine' ? 'active' : '' %>" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
+    <a class="nav-link <%= currentPath === '/goals' ? 'active' : '' %>" href="/goals">🎯 <span data-i18n="dashboard.nav.viewGoals">View goals</span></a>
+    <a class="nav-link <%= currentPath === '/getAndShowFavourites' ? 'active' : '' %>" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
+
+    <p class="sidebar-shell__section" data-i18n="sidebar.group.support">Support</p>
+    <a class="nav-link <%= currentPath === '/info' ? 'active' : '' %>" href="/info">📘 <span data-i18n="dashboard.nav.howto">How To Use</span></a>
+    <a class="nav-link <%= currentPath === '/about' ? 'active' : '' %>" href="/about">ℹ️ <span data-i18n="dashboard.nav.about">About Us</span></a>
+
+    <p class="sidebar-shell__section" data-i18n="sidebar.group.account">Account</p>
+    <a class="nav-link <%= currentPath === '/settings' ? 'active' : '' %>" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
+    <a class="nav-link" href="/twofa/setup">🔒 <span data-i18n="dashboard.nav.enable2fa">Enable 2FA</span></a>
+    <a class="nav-link" href="/twofa/disable">🔓 <span data-i18n="dashboard.nav.disable2fa">Disable 2FA</span></a>
+  </div>
+
+  <a href="/logout" class="action-btn logout-btn" data-i18n="dashboard.logout">Logout</a>
+</aside>
+<div class="sidebar-shell__backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+<script src="/js/sidebar-shell.js"></script>
