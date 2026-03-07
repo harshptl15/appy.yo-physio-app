@@ -4,6 +4,7 @@
   "description": "node dev branch",
   "main": "index.js",
   "scripts": {
+    "start": "npm run frontend:build && node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "devStart": "nodemon index.js",
     "frontend:dev": "vite --config frontend/vite.config.js",
