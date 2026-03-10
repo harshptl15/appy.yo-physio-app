@@ -96,9 +96,21 @@ console.log("WHERE DTO:", _whereDTO);
     //check if the elements in _exerciseResults are ExerciseDTO objects
     else if (_exerciseResults.some(result => result instanceof ExerciseDTO)) {
         console.log("Exercise results are ExerciseDTO objects");
-        //map the name field in the ExerciseDTO objects to the exerciseName field in the _exerciseResultsForView array
-        //also map the id fild in the ExerciseDTO objects to the id filed in the _exerciseResultsForView array
-        _exerciseResultsForView = _exerciseResults.map(exerciseDTO => ( {exerciseName: exerciseDTO.exerciseName, id: exerciseDTO.id}));
+        // map full ExerciseDTO fields so the view can show rich descriptions
+        _exerciseResultsForView = _exerciseResults.map(exerciseDTO => ({
+            exerciseName: exerciseDTO.exerciseName,
+            id: exerciseDTO.id,
+            tips: exerciseDTO.tips,
+            commonMistakes: exerciseDTO.commonMistakes,
+            image: exerciseDTO.image,
+            video: exerciseDTO.video,
+            sets: exerciseDTO.sets,
+            reps: exerciseDTO.reps,
+            skillLevel: exerciseDTO.skillLevel,
+            tempo: exerciseDTO.tempo,
+            position: exerciseDTO.position,
+            equipment: exerciseDTO.equipment
+        }));
     }
     console.log("exerciseResultsForView: ", _exerciseResultsForView);
     //render the exercise routine view with the exercise results for the view
