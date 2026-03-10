@@ -12,14 +12,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="css/location.css"/>
-    <link rel="stylesheet" href="css/sidebar-shell.css"/>
     <script src="/js/language.js?v=4"></script>
 </head>
 <body>
     <div class="overlay">
         <!-- Hamburger Button -->
         <button class="hamburger" id="hamburgerBtn">☰</button>
-        <%- include('partials/sidebar-shell') %>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <a class="nav-link" href="/dashboard"><span data-i18n="common.nav.dashboard">Dashboard</span></a>
+                <a class="nav-link" href="/muscleGroup?fresh=1">💪 <span data-i18n="dashboard.nav.exercises">Exercises</span></a>
+                <a class="nav-link" href="/showRoutine">📅 <span data-i18n="dashboard.nav.routines">Routines</span></a>
+                <a class="nav-link" href="/getAndShowFavourites">⭐ <span data-i18n="dashboard.nav.favourites">Favourites</span></a>
+                <a class="nav-link" href="/goals">🎯 <span data-i18n="dashboard.cta.goals">Your Goals</span></a>
+                <a class="nav-link" href="/about">ℹ️ <span data-i18n="dashboard.nav.about">About Us</span></a>
+                <a class="nav-link" href="/settings">⚙️ <span data-i18n="dashboard.nav.settings">Settings</span></a>
+            </div>
+            <a href="/logout" class="action-btn logout-btn" data-i18n="dashboard.logout">Logout</a>
+        </aside>
         <div class="form-card animate__animated animate__fadeIn">
             <h1 class="animate__animated animate__bounceInDown" data-i18n="where.title">Where Are You Training?</h1>
 
@@ -45,6 +57,13 @@
         </div>
     </div>
     <script>
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebar = document.getElementById("sidebar");
+
+        hamburgerBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        });
+
         const applyDynamicTranslations = () => {
           if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
           const language = window.PhysioLanguage.getLanguagePreference();

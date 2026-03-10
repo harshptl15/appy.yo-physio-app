@@ -6,6 +6,7 @@
 
 const express       = require('express'); //import express module
 const router        = express.Router();//create router instance
+const path          = require('path'); //import path module
 const registerController = require('../controllers/registerController'); //import register controller
 const loginController    = require('../controllers/loginController');    //import login controller
 const logoutController   = require('../controllers/logoutController');   //import logout controller
@@ -48,8 +49,6 @@ router.get('/api/preferences/notifications', checkAuthenticated, notificationPre
 router.patch('/api/preferences/notifications', checkAuthenticated, notificationPreferencesApiController.patchNotificationPreferences);
 router.post('/api/progress-checkins', checkAuthenticated, progressCheckInController.submitProgressCheckIn);
 router.post('/api/notifications/:id/click', checkAuthenticated, notificationLogController.markNotificationClicked);
-router.get('/api/dashboard/summary', checkAuthenticated, dashboardController.getDashboardSummary);
-router.get('/dashboard/summary', checkAuthenticated, dashboardController.getDashboardSummary);
 router.post('/internal/jobs/notifications/daily', notificationJobsController.runDailyNotificationJob);
 
 // — Setup 2FA —
@@ -67,7 +66,7 @@ router.get( '/twofa/disable', checkAuthenticated, twofaCtrl.disableTwofa);
  * route to register view.
  */
 router.get('/register', (req, res) => {
-    res.render('register');
+    res.sendFile(path.join(__dirname, "../views/register.html"));
 })
 
 /**
@@ -79,7 +78,7 @@ router.post('/register', registerController.register);
  * route to get login view.
  */
 router.get('/login', (req, res) => {
-    res.render('login');
+    res.sendFile(path.join(__dirname, "../views/login.html"));
 });
 
 /**
