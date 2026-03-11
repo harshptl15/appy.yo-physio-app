@@ -10,7 +10,7 @@ export function AuthLayout({ eyebrow, title, subtitle, children }) {
           <div>
             <a href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-app-ink">
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-app-accent text-white">P</span>
-              PhysioApp
+              PhysioFit
             </a>
             <p className="mt-12 text-xs font-semibold uppercase tracking-[0.22em] text-app-muted">{eyebrow}</p>
             <h1 className="mt-4 max-w-md text-4xl font-bold leading-tight text-app-ink">{title}</h1>
