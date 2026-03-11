@@ -90,11 +90,7 @@ console.log("WHERE DTO:", _whereDTO);
         console.log("Exercise results are strings");
         //map the strings in the _exerciseResults array to the exerciseName field in the objects in the _exerciseResultsForView array
         //also map a placeholder id to the id vield in that object in th eexerciseResultsForView array
-        _exerciseResultsForView = _exerciseResults.map(exerciseStr => ( {
-            exerciseName: exerciseStr,
-            id: "1",
-            description: null
-        }));
+        _exerciseResultsForView = _exerciseResults.map(exerciseStr => ( {exerciseName: exerciseStr, id: "1"}));
         
     }
     //check if the elements in _exerciseResults are ExerciseDTO objects
@@ -102,12 +98,7 @@ console.log("WHERE DTO:", _whereDTO);
         console.log("Exercise results are ExerciseDTO objects");
         //map the name field in the ExerciseDTO objects to the exerciseName field in the _exerciseResultsForView array
         //also map the id fild in the ExerciseDTO objects to the id filed in the _exerciseResultsForView array
-        //include a short description so the view can show basic guidance on how to perform the exercise
-        _exerciseResultsForView = _exerciseResults.map(exerciseDTO => ( {
-            exerciseName: exerciseDTO.exerciseName,
-            id: exerciseDTO.id,
-            description: exerciseDTO.tips || exerciseDTO.commonMistakes || null
-        }));
+        _exerciseResultsForView = _exerciseResults.map(exerciseDTO => ( {exerciseName: exerciseDTO.exerciseName, id: exerciseDTO.id}));
     }
     console.log("exerciseResultsForView: ", _exerciseResultsForView);
     //render the exercise routine view with the exercise results for the view

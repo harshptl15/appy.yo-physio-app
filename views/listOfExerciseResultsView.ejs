@@ -48,19 +48,8 @@
                     <label>
                     <input type="checkbox" name="selected<%=i%>" value="<%= exercise.id %>">
                     <span class="checkbox-custom"></span>
-                    <div class="exercise-text">
-                        <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
-                        <p class="exercise-description">
-                          <%= exercise.description || 'Tap "Show Routine" to see full instructions for this exercise.' %>
-                        </p>
-                    </div>
+                    <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
                     </label>
-                    <form class="favourite-form" action="/addExerciseToFavouritesThenShowFavourites" method="POST">
-                        <input type="hidden" name="favouriteExerciseId" value="<%= exercise.id %>">
-                        <button type="submit" class="favourite-btn" title="Add to favourites">
-                          ⭐
-                        </button>
-                    </form>
                 </div>
                 <% }) %>
                 <div class="btn-group">
