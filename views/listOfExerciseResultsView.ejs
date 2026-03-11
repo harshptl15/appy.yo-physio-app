@@ -22,40 +22,21 @@
         <div class="form-card animate__animated animate__fadeInUp">
             <h1 class="animate__animated animate__fadeInDown" data-i18n="exercises.selectTitle">Select Exercises</h1>
             <p>
-            <!-- /showExerciseRoutine is the route to the controller that shows the exercise routine -->
-            <form action="/showExerciseRoutine" method="post">
-                <label for="exerciseResults" data-i18n="exercises.yourRoutine">Your Routine:</label>
-                <!-- name=exerciseResults is the name for the select element which a controller uses to read,
-                not to be confused with exerciseResults which is the array of exercise objects passed from a controller
-                exercise is the element of the exerciseResults array of objects,
-                exercise.exerciseName is the name of the exercise as a string.-->
-                <!-- select may have been a bad choice here, as we cannot store multiple
-                 values in an element. -->
-                <!-- <select name="exerciseResults" id="exerciseResults" multiple>
-                <% exerciseResults.forEach(function(exercise) { %>
-                    <option value="<%= exercise.exerciseName %>">
-                    <%= exercise.exerciseName %>
-                    </option>
-                <% }); %>
-                </select> -->
-                <!-- store the number of exercises in the list -->
-                 <input type="hidden" name="numberOfExercises" value="<%= exerciseResults.length %>">
-                <!-- use dynamic div elements to display exercise names, and store
-                 the exercise id. checkboxes will be used to add an exercise.
-                 it's easier to transmit data and its a more user friendly experience. -->
-                <% exerciseResults.forEach((exercise, i) => { %>
-               <div class="exercise-box">
-    <label>
-    <input type="checkbox" name="selected<%=i%>" value="<%= exercise.id %>">
-    <span class="checkbox-custom"></span>
-    <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
-    </label>
-    <form action="/addExerciseToFavouritesThenShowFavourites" method="POST" style="display:inline;">
-        <input type="hidden" name="favouriteExerciseId" value="<%= exercise.id %>">
-        <button type="submit" class="fav-btn">★ Favourite</button>
-    </form>
-</div>
-                <% }) %>
+            <input type="hidden" name="numberOfExercises" form="routineForm" value="<%= exerciseResults.length %>">
+            <% exerciseResults.forEach((exercise, i) => { %>
+            <div class="exercise-box">
+                <label>
+                    <input type="checkbox" name="selected<%=i%>" value="<%= exercise.id %>" form="routineForm">
+                    <span class="checkbox-custom"></span>
+                    <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
+                </label>
+                <form action="/addExerciseToFavouritesThenShowFavourites" method="POST" style="display:inline;">
+                    <input type="hidden" name="favouriteExerciseId" value="<%= exercise.id %>">
+                    <button type="submit" class="fav-btn">★ Favourite</button>
+                </form>
+            </div>
+            <% }) %>
+            <form id="routineForm" action="/showExerciseRoutine" method="post">
                 <div class="btn-group">
                     <button type="submit" data-i18n="exercises.showRoutine">Show Routine</button>
                     <a href="/category" class="link-btn" data-i18n="exercises.saveNewSearch">Save & New Search</a>
@@ -74,7 +55,6 @@
             el.textContent = window.PhysioLanguage.translateDynamic('exercise', raw, language);
           });
         };
-
         applyDynamicTranslations();
         window.addEventListener('physio-language-changed', applyDynamicTranslations);
     </script>
