@@ -7,6 +7,7 @@ body.sidebar-shell-lock {
   top: 0 !important;
   left: 0 !important;
   height: 100vh !important;
+  height: 100dvh !important;
   width: min(320px, 86vw) !important;
   background: #0f1f33;
   padding: 24px 18px;
@@ -15,6 +16,16 @@ body.sidebar-shell-lock {
   transition: transform 220ms ease;
   z-index: 1300;
   pointer-events: auto !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-shell__content {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 12px;
 }
 
 .sidebar.sidebar-shell.is-open {
@@ -84,4 +95,7 @@ body.sidebar-shell-lock {
   background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.22);
   text-transform: none;
+  margin-top: 10px;
+  margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  flex-shrink: 0;
 }
