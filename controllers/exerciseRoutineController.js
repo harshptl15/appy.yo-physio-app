@@ -144,7 +144,7 @@ const justShowTheView = async (req, res) => {
   let currentExerciseIndex = 0;
 
   for (let i = 0; i < exerciseObjectsForRoutineView.length; i += 1) {
-    if (exerciseObjectsForRoutineView[i].goal === false) {
+    if (!exerciseObjectsForRoutineView[i].goal) {
       currentExerciseIndex = i;
       break;
     }
@@ -249,6 +249,15 @@ const markExerciseAsFinished = async (req, res) => {
   });
 
   await routineService.markRoutineAsFinished(routineToMarkAsFinished);
+
+  const wantsJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
+  if (wantsJson) {
+    return res.json({
+      success: true,
+      exerciseId: finishedExerciseId
+    });
+  }
+
   return justShowTheView(req, res);
 };
 

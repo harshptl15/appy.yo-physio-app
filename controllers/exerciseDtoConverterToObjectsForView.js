@@ -5,6 +5,17 @@
 //import the ExerciseDTO class
 const { ExerciseDTO } = require("../DTO/ExerciseDTO");
 
+const normalizeGoalToBoolean = (goalValue) => {
+    if (goalValue === true || goalValue === 1 || goalValue === "1") return true;
+    if (goalValue === false || goalValue === 0 || goalValue === "0") return false;
+    if (typeof goalValue === "string") {
+        const normalized = goalValue.trim().toLowerCase();
+        if (normalized === "true") return true;
+        if (normalized === "false") return false;
+    }
+    return false;
+};
+
 const exerciseDtoConverterToObjectsForView = (exerciseDTOs) => {
     //check if exerciseDTOs is not an array, or has a lenght of 0, or the fileds are not exerciseDTOs and log an error message    
     if (!Array.isArray(exerciseDTOs) || exerciseDTOs.length === 0 || !exerciseDTOs.every(exercise => exercise instanceof ExerciseDTO)) {
@@ -14,11 +25,11 @@ const exerciseDtoConverterToObjectsForView = (exerciseDTOs) => {
     
 
     //map the exerciseDTOs to an array of objects the view can use
-    exerciseObjectsToReturn =  exerciseDTOs.map(exercise => {
+    const exerciseObjectsToReturn = exerciseDTOs.map(exercise => {
         return {
             exerciseName: exercise.exerciseName,
             id: exercise.id,
-            goal: exercise.goal
+            goal: normalizeGoalToBoolean(exercise.goal)
         };
     });
     

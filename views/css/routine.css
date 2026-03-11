@@ -114,6 +114,21 @@ select {
   margin-top: 10px;
 }
 
+.mark-complete-form {
+  margin-top: 10px;
+}
+
+.mark-complete-btn {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+}
+
+.mark-complete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .status-text {
   font-size: 0.9rem;
   color: #32cd32;

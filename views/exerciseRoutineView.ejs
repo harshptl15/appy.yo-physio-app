@@ -44,13 +44,18 @@
         <!-- div for showing a list of all exercises in routine. -->
          <div class="routine-list">
             <% exerciseRoutine.forEach((exercise, i) => { %>
-                <div class = "routine-box <%= exercise.goal ? 'completed' : '' %>">
+                <div class="routine-box <%= exercise.goal ? 'completed' : '' %>" data-routine-exercise-card data-exercise-id="<%= exercise.id %>">
                     <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
                     <!-- only render the following image if the exercise.goal is true 
                     and therefore this exercise has been completed-->
                     <% if (exercise.goal) { %>
                     <span class="checkmark">✔</span>
                         <p class="status-text" data-i18n="common.completed">Completed</p>
+                    <% } else { %>
+                      <form action="/markExerciseAsFinished" method="POST" class="mark-complete-form">
+                        <input type="hidden" name="finishedExerciseId" value="<%= exercise.id %>">
+                        <button type="submit" class="btn btn-success mark-complete-btn" data-i18n="routine.markComplete">Mark as Complete</button>
+                      </form>
                     <% } %>
                 </div>
             <% }) %>
@@ -163,10 +168,6 @@
                         <input type="hidden" name="exerciseId" value="<%= currentExercise.id %>">
                         <button type="submit" class="btn btn-danger">Remove Current Exercise</button>
                     </form>
-                    <form action="/markExerciseAsFinished" method="POST">
-                        <input type="hidden" name="finishedExerciseId" value="<%= currentExercise.id %>">
-                        <button type="submit" class="btn btn-success">Mark Exercise as Finished</button>
-                    </form>
                     <form action="/addExerciseToFavouritesThenShowFavourites" method="POST">
                         <input type="hidden" name="favouriteExerciseId" value="<%= currentExercise.id %>">
                         <button type="submit" class="btn btn-secondary">Add to Favourites</button>
@@ -176,6 +177,77 @@
         <% } %>
     </div>
     <script>
+        const applyDynamicTranslations = () => {
+          if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
+          const language = window.PhysioLanguage.getLanguagePreference();
+          document.querySelectorAll('.exercise-name[data-exercise-name]').forEach((el) => {
+            const raw = el.getAttribute('data-exercise-name');
+            el.textContent = window.PhysioLanguage.translateDynamic('exercise', raw, language);
+          });
+        };
+
+        applyDynamicTranslations();
+        window.addEventListener('physio-language-changed', applyDynamicTranslations);
+
+        const markCompleteForms = document.querySelectorAll('.mark-complete-form');
+        markCompleteForms.forEach((form) => {
+          form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const button = form.querySelector('button[type="submit"]');
+            const hiddenInput = form.querySelector('input[name="finishedExerciseId"]');
+            const exerciseId = Number(hiddenInput?.value);
+            if (!Number.isInteger(exerciseId) || exerciseId <= 0 || !button) return;
+
+            const originalLabel = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Saving...';
+
+            try {
+              const response = await fetch('/markExerciseAsFinished', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Accept: 'application/json'
+                },
+                body: JSON.stringify({ finishedExerciseId: exerciseId })
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to mark exercise as complete.');
+              }
+
+              const card = form.closest('[data-routine-exercise-card]');
+              if (!card) {
+                window.location.reload();
+                return;
+              }
+
+              card.classList.add('completed');
+              form.remove();
+
+              const checkmark = document.createElement('span');
+              checkmark.className = 'checkmark';
+              checkmark.textContent = '✔';
+              card.appendChild(checkmark);
+
+              const statusText = document.createElement('p');
+              statusText.className = 'status-text';
+              statusText.setAttribute('data-i18n', 'common.completed');
+              statusText.textContent = window.PhysioLanguage?.t?.('common.completed') || 'Completed';
+              card.appendChild(statusText);
+
+              if (document.querySelectorAll('.mark-complete-form').length === 0) {
+                window.location.reload();
+              }
+            } catch (error) {
+              button.disabled = false;
+              button.textContent = originalLabel;
+              alert(error.message || 'Failed to mark exercise as complete.');
+            }
+          });
+        });
+
         const painFeedbackForm = document.getElementById('painFeedbackForm');
         if (painFeedbackForm) {
           const painScoreInput = document.getElementById('painScore');
@@ -207,18 +279,6 @@
           painTrendSelect.addEventListener('change', () => {
             validationEl.textContent = '';
           });
-
-          const applyDynamicTranslations = () => {
-            if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
-            const language = window.PhysioLanguage.getLanguagePreference();
-            document.querySelectorAll('.exercise-name[data-exercise-name]').forEach((el) => {
-              const raw = el.getAttribute('data-exercise-name');
-              el.textContent = window.PhysioLanguage.translateDynamic('exercise', raw, language);
-            });
-          };
-
-          applyDynamicTranslations();
-          window.addEventListener('physio-language-changed', applyDynamicTranslations);
 
           updateSliderVisualState();
 
