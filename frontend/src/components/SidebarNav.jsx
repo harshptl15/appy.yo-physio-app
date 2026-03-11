@@ -72,7 +72,7 @@ function SideContent({ t, username, currentPath, onNavigate, mobile = false }) {
         href="/logout"
         onClick={onNavigate}
         className={`mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/70 text-sm font-semibold text-white hover:bg-slate-800 ${
-          mobile ? 'mb-14' : 'mb-2'
+          mobile ? 'mb-20' : 'mb-2'
         }`}
       >
         {t('dashboard.logout', 'Logout')}
