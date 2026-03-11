@@ -31,6 +31,7 @@ const addExerciseToFavouritesThenShowFavourites = async (req, res) => {
     //create a UserDTO and ExerciseDTO
     const userDTO = new UserDTO({ id: userId });
     const exerciseDTO = new ExerciseDTO({ id: exerciseId });
+    let wasAdded = false;
     //get favourites from service to know if the exercise is already a favourite
     try {
         const existingFavouritesDtos = await favouritesService.getFavouritesByUserId(userDTO);
@@ -42,9 +43,24 @@ const addExerciseToFavouritesThenShowFavourites = async (req, res) => {
         if (favouriteDtoToAdd) {
             //call service to add exercise to favourites
             await favouritesService.insertFavourite(userDTO, favouriteDtoToAdd);
+            wasAdded = true;
+        }
+
+        const wantsJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
+        if (wantsJson) {
+            return res.json({
+                success: true,
+                exerciseId: Number(exerciseId),
+                added: wasAdded
+            });
         }
     } catch (error) {
         console.error(`Error adding exercise to favourites: ${error.message}`);
+        const wantsJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
+        if (wantsJson) {
+            res.status(500).json({ error: "Internal Server Error" });
+            return;
+        }
         res.status(500).json({ error: "Internal Server Error" });
         return;
     }

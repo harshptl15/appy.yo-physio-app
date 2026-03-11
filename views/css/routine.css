@@ -107,6 +107,11 @@ select {
   border: 2px solid #32cd32;
 }
 
+.routine-box.active {
+  border: 2px solid rgba(59, 130, 246, 0.75);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
 .routine-box .checkmark {
   font-size: 1.5rem;
   color: #32cd32;
@@ -199,6 +204,40 @@ select {
   margin-bottom: 8px;
   font-size: 1rem;
   color: #ccc;
+}
+
+.current-exercise-title {
+  margin-bottom: 0.8rem;
+  text-align: center;
+}
+
+.current-exercise-details {
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+}
+
+.current-exercise-details li {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #ccc;
+}
+
+.current-exercise-details li strong {
+  color: #e2e8f0;
+}
+
+.current-exercise-status {
+  min-height: 1.1rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.disabled-link {
+  color: #9aa6b2;
+  pointer-events: none;
+  text-decoration: none;
 }
 
 .exercise-actions {

@@ -276,6 +276,15 @@ const removeExerciseFromRoutine = async (req, res) => {
   });
 
   await routineService.removeRoutineBySecondaryFields(routineToRemove);
+
+  const wantsJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
+  if (wantsJson) {
+    return res.json({
+      success: true,
+      exerciseId: exerciseIdToRemove
+    });
+  }
+
   return justShowTheView(req, res);
 };
 

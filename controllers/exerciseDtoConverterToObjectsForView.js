@@ -29,7 +29,17 @@ const exerciseDtoConverterToObjectsForView = (exerciseDTOs) => {
         return {
             exerciseName: exercise.exerciseName,
             id: exercise.id,
-            goal: normalizeGoalToBoolean(exercise.goal)
+            goal: normalizeGoalToBoolean(exercise.goal),
+            tips: exercise.tips || '',
+            commonMistakes: exercise.commonMistakes || '',
+            image: exercise.image || '',
+            video: exercise.video || '',
+            sets: exercise.sets || '',
+            reps: exercise.reps || '',
+            skillLevel: exercise.skillLevel || '',
+            tempo: exercise.tempo || '',
+            position: exercise.position || '',
+            equipment: exercise.equipment || ''
         };
     });
     

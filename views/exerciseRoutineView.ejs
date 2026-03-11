@@ -44,7 +44,7 @@
         <!-- div for showing a list of all exercises in routine. -->
          <div class="routine-list">
             <% exerciseRoutine.forEach((exercise, i) => { %>
-                <div class="routine-box <%= exercise.goal ? 'completed' : '' %>" data-routine-exercise-card data-exercise-id="<%= exercise.id %>">
+                <div class="routine-box <%= exercise.goal ? 'completed' : '' %> <%= !allExercisesCompleted && currentExercise && currentExercise.id === exercise.id ? 'active' : '' %>" data-routine-exercise-card data-exercise-id="<%= exercise.id %>">
                     <p class="exercise-name" data-exercise-name="<%= exercise.exerciseName %>"><%= exercise.exerciseName %></p>
                     <!-- only render the following image if the exercise.goal is true 
                     and therefore this exercise has been completed-->
@@ -54,7 +54,7 @@
                     <% } else { %>
                       <form action="/markExerciseAsFinished" method="POST" class="mark-complete-form">
                         <input type="hidden" name="finishedExerciseId" value="<%= exercise.id %>">
-                        <button type="submit" class="btn btn-success mark-complete-btn" data-i18n="routine.markComplete">Mark as Complete</button>
+                        <button type="submit" class="btn btn-success mark-complete-btn" data-exercise-id="<%= exercise.id %>" data-i18n="routine.markComplete">Mark as Complete</button>
                       </form>
                     <% } %>
                 </div>
@@ -147,35 +147,41 @@
         <% } %>
         <!-- div for buttons to control the current exercise in the routine. -->
         <% } else { %>
-            <div class="current-exercise"></div>
-                <!-- display info on current exercise. -->
-                <h2>Now Training</h2>
-                <p><strong class="exercise-name" data-exercise-name="<%= currentExercise.exerciseName %>"><%= currentExercise.exerciseName %></strong></p>
-                <ul>
-                    <li>💡 Tips: <%= currentExercise.tips %></li>
-                    <li>⚠ Common Mistakes: <%= currentExercise.commonMistakes %></li>
-                    <li>🏋️ Equipment: <%= currentExercise.equipment %></li>
-                    <li>📏 Sets/Reps: <%= currentExercise.sets %> × <%= currentExercise.reps %></li>
-                    <li>⏱ Tempo/Hold Time: <%= currentExercise.tempo %></li>
-                    <li>🎯 Skill Level: <%= currentExercise.skillLevel %></li>
-                    <li>   Position: <%= currentExercise.position %></li>
-                    <li>   Equipment: <%= currentExercise.equipment %></li>
-                    <li>   Image: <%= currentExercise.image %></li>
-                    <li>   Video: <%= currentExercise.video %><br></li>
+            <section class="current-exercise" id="currentExercisePanel" data-current-exercise-id="<%= currentExercise.id %>">
+                <h2 data-i18n="routine.nowTraining">Now Training</h2>
+                <p class="current-exercise-title">
+                  <strong id="currentExerciseName" class="exercise-name" data-exercise-name="<%= currentExercise.exerciseName %>"><%= currentExercise.exerciseName %></strong>
+                </p>
+                <ul class="current-exercise-details">
+                    <li><strong>💡 Tips:</strong> <span id="currentExerciseTips"><%= currentExercise.tips || 'Not available' %></span></li>
+                    <li><strong>⚠ Common Mistakes:</strong> <span id="currentExerciseCommonMistakes"><%= currentExercise.commonMistakes || 'Not available' %></span></li>
+                    <li><strong>🏋 Equipment:</strong> <span id="currentExerciseEquipment"><%= currentExercise.equipment || 'Not available' %></span></li>
+                    <li><strong>📏 Sets/Reps:</strong> <span id="currentExerciseSetsReps"><%= currentExercise.sets || '-' %> × <%= currentExercise.reps || '-' %></span></li>
+                    <li><strong>⏱ Tempo/Hold Time:</strong> <span id="currentExerciseTempo"><%= currentExercise.tempo || 'Not available' %></span></li>
+                    <li><strong>🎯 Skill Level:</strong> <span id="currentExerciseSkillLevel"><%= currentExercise.skillLevel || 'Not available' %></span></li>
+                    <li><strong>📍 Position:</strong> <span id="currentExercisePosition"><%= currentExercise.position || 'Not available' %></span></li>
+                    <li><strong>🖼 Image:</strong> <a id="currentExerciseImageLink" href="<%= currentExercise.image || '#' %>" target="_blank" rel="noopener noreferrer"><%= currentExercise.image || 'Not available' %></a></li>
+                    <li><strong>🎥 Video:</strong> <a id="currentExerciseVideoLink" href="<%= currentExercise.video || '#' %>" target="_blank" rel="noopener noreferrer"><%= currentExercise.video || 'Not available' %></a></li>
                 </ul>
+                <p id="currentExerciseStatus" class="current-exercise-status" aria-live="polite"></p>
                 <div class="exercise-actions">
-                    <form action="/removeExerciseFromRoutine" method="POST">
-                        <input type="hidden" name="exerciseId" value="<%= currentExercise.id %>">
-                        <button type="submit" class="btn btn-danger">Remove Current Exercise</button>
+                    <form id="removeCurrentExerciseForm" action="/removeExerciseFromRoutine" method="POST">
+                        <input id="removeCurrentExerciseId" type="hidden" name="exerciseId" value="<%= currentExercise.id %>">
+                        <button type="submit" class="btn btn-danger" data-i18n="routine.removeCurrent">Remove Current Exercise</button>
                     </form>
-                    <form action="/addExerciseToFavouritesThenShowFavourites" method="POST">
-                        <input type="hidden" name="favouriteExerciseId" value="<%= currentExercise.id %>">
-                        <button type="submit" class="btn btn-secondary">Add to Favourites</button>
+                    <form id="markCurrentExerciseCompleteForm" action="/markExerciseAsFinished" method="POST">
+                        <input id="markCurrentExerciseId" type="hidden" name="finishedExerciseId" value="<%= currentExercise.id %>">
+                        <button type="submit" class="btn btn-success" data-i18n="routine.markComplete">Mark as Complete</button>
+                    </form>
+                    <form id="addCurrentExerciseFavouriteForm" action="/addExerciseToFavouritesThenShowFavourites" method="POST">
+                        <input id="favouriteCurrentExerciseId" type="hidden" name="favouriteExerciseId" value="<%= currentExercise.id %>">
+                        <button type="submit" class="btn btn-secondary" data-i18n="routine.addToFavourites">Add to Favourites</button>
                     </form>
                 </div>
-            </div>
+            </section>
         <% } %>
     </div>
+    <script id="routineStatePayload" type="application/json"><%- JSON.stringify(exerciseRoutine).replace(/</g, '\\u003c') %></script>
     <script>
         const applyDynamicTranslations = () => {
           if (!window.PhysioLanguage || typeof window.PhysioLanguage.translateDynamic !== 'function') return;
@@ -189,64 +195,315 @@
         applyDynamicTranslations();
         window.addEventListener('physio-language-changed', applyDynamicTranslations);
 
-        const markCompleteForms = document.querySelectorAll('.mark-complete-form');
-        markCompleteForms.forEach((form) => {
-          form.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        const safeText = (value, fallback = 'Not available') => {
+          const normalized = typeof value === 'string' ? value.trim() : value;
+          return normalized ? String(normalized) : fallback;
+        };
 
-            const button = form.querySelector('button[type="submit"]');
-            const hiddenInput = form.querySelector('input[name="finishedExerciseId"]');
-            const exerciseId = Number(hiddenInput?.value);
-            if (!Number.isInteger(exerciseId) || exerciseId <= 0 || !button) return;
+        const payloadEl = document.getElementById('routineStatePayload');
+        const currentExercisePanel = document.getElementById('currentExercisePanel');
+        let routineState = [];
+        if (payloadEl && payloadEl.textContent) {
+          try {
+            const parsed = JSON.parse(payloadEl.textContent);
+            if (Array.isArray(parsed)) {
+              routineState = parsed;
+            }
+          } catch (error) {
+            console.error('Failed to parse routine payload:', error);
+          }
+        }
 
-            const originalLabel = button.textContent;
+        let currentExerciseId = Number(currentExercisePanel?.dataset.currentExerciseId || 0);
+
+        const getExerciseById = (exerciseId) => routineState.find((exercise) => Number(exercise.id) === Number(exerciseId)) || null;
+        const getNextIncompleteExercise = () => routineState.find((exercise) => !exercise.goal) || null;
+
+        const setStatus = (message, isError = false) => {
+          const statusEl = document.getElementById('currentExerciseStatus');
+          if (!statusEl) return;
+          statusEl.textContent = message || '';
+          statusEl.style.color = isError ? '#fca5a5' : '#cbd5e1';
+        };
+
+        const updateMediaLink = (linkId, value) => {
+          const linkEl = document.getElementById(linkId);
+          if (!linkEl) return;
+          const hasValue = typeof value === 'string' && value.trim().length > 0;
+          linkEl.href = hasValue ? value : '#';
+          linkEl.textContent = hasValue ? value : 'Not available';
+          linkEl.classList.toggle('disabled-link', !hasValue);
+          if (!hasValue) {
+            linkEl.removeAttribute('target');
+            linkEl.removeAttribute('rel');
+          } else {
+            linkEl.setAttribute('target', '_blank');
+            linkEl.setAttribute('rel', 'noopener noreferrer');
+          }
+        };
+
+        const markCardAsCompleted = (exerciseId) => {
+          const card = document.querySelector(`[data-routine-exercise-card][data-exercise-id="${exerciseId}"]`);
+          if (!card) return;
+
+          card.classList.remove('active');
+          card.classList.add('completed');
+
+          const markForm = card.querySelector('.mark-complete-form');
+          if (markForm) {
+            markForm.remove();
+          }
+
+          if (!card.querySelector('.checkmark')) {
+            const checkmark = document.createElement('span');
+            checkmark.className = 'checkmark';
+            checkmark.textContent = '✔';
+            card.appendChild(checkmark);
+          }
+
+          if (!card.querySelector('.status-text')) {
+            const statusText = document.createElement('p');
+            statusText.className = 'status-text';
+            statusText.setAttribute('data-i18n', 'common.completed');
+            statusText.textContent = window.PhysioLanguage?.t?.('common.completed') || 'Completed';
+            card.appendChild(statusText);
+          }
+        };
+
+        const removeCardByExerciseId = (exerciseId) => {
+          const card = document.querySelector(`[data-routine-exercise-card][data-exercise-id="${exerciseId}"]`);
+          if (card) card.remove();
+        };
+
+        const highlightActiveExerciseCard = (exerciseId) => {
+          document.querySelectorAll('[data-routine-exercise-card]').forEach((card) => {
+            const cardExerciseId = Number(card.dataset.exerciseId);
+            card.classList.toggle('active', Number(exerciseId) === cardExerciseId);
+          });
+        };
+
+        const setCurrentExercise = (exercise) => {
+          if (!currentExercisePanel) return;
+
+          if (!exercise) {
+            currentExerciseId = 0;
+            currentExercisePanel.classList.add('is-empty');
+            const nameEl = document.getElementById('currentExerciseName');
+            if (nameEl) {
+              nameEl.textContent = 'No exercise in routine';
+              nameEl.setAttribute('data-exercise-name', 'No exercise in routine');
+            }
+            document.getElementById('currentExerciseTips').textContent = 'No exercise selected.';
+            document.getElementById('currentExerciseCommonMistakes').textContent = 'No exercise selected.';
+            document.getElementById('currentExerciseEquipment').textContent = 'No exercise selected.';
+            document.getElementById('currentExerciseSetsReps').textContent = '-';
+            document.getElementById('currentExerciseTempo').textContent = '-';
+            document.getElementById('currentExerciseSkillLevel').textContent = '-';
+            document.getElementById('currentExercisePosition').textContent = '-';
+            updateMediaLink('currentExerciseImageLink', '');
+            updateMediaLink('currentExerciseVideoLink', '');
+            setStatus('All exercises are complete.');
+            return;
+          }
+
+          currentExercisePanel.classList.remove('is-empty');
+          currentExerciseId = Number(exercise.id);
+          currentExercisePanel.dataset.currentExerciseId = String(currentExerciseId);
+          highlightActiveExerciseCard(currentExerciseId);
+
+          const currentNameEl = document.getElementById('currentExerciseName');
+          currentNameEl.textContent = safeText(exercise.exerciseName, 'Unnamed exercise');
+          currentNameEl.setAttribute('data-exercise-name', safeText(exercise.exerciseName, 'Unnamed exercise'));
+
+          document.getElementById('currentExerciseTips').textContent = safeText(exercise.tips);
+          document.getElementById('currentExerciseCommonMistakes').textContent = safeText(exercise.commonMistakes);
+          document.getElementById('currentExerciseEquipment').textContent = safeText(exercise.equipment);
+          document.getElementById('currentExerciseSetsReps').textContent = `${safeText(exercise.sets, '-')} × ${safeText(exercise.reps, '-')}`;
+          document.getElementById('currentExerciseTempo').textContent = safeText(exercise.tempo);
+          document.getElementById('currentExerciseSkillLevel').textContent = safeText(exercise.skillLevel);
+          document.getElementById('currentExercisePosition').textContent = safeText(exercise.position);
+          updateMediaLink('currentExerciseImageLink', exercise.image);
+          updateMediaLink('currentExerciseVideoLink', exercise.video);
+
+          const removeInput = document.getElementById('removeCurrentExerciseId');
+          const markInput = document.getElementById('markCurrentExerciseId');
+          const favouriteInput = document.getElementById('favouriteCurrentExerciseId');
+          if (removeInput) removeInput.value = String(currentExerciseId);
+          if (markInput) markInput.value = String(currentExerciseId);
+          if (favouriteInput) favouriteInput.value = String(currentExerciseId);
+
+          const favouriteButton = document.querySelector('#addCurrentExerciseFavouriteForm button[type="submit"]');
+          if (favouriteButton) {
+            favouriteButton.disabled = false;
+            favouriteButton.textContent = window.PhysioLanguage?.t?.('routine.addToFavourites') || 'Add to Favourites';
+          }
+
+          setStatus('');
+          applyDynamicTranslations();
+        };
+
+        const markExerciseComplete = async (exerciseId, triggerButton) => {
+          const button = triggerButton;
+          const originalLabel = button ? button.textContent : '';
+          if (button) {
             button.disabled = true;
             button.textContent = 'Saving...';
+          }
+
+          try {
+            const response = await fetch('/markExerciseAsFinished', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              },
+              body: JSON.stringify({ finishedExerciseId: Number(exerciseId) })
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to mark exercise as complete.');
+            }
+
+            routineState = routineState.map((exercise) => {
+              if (Number(exercise.id) === Number(exerciseId)) {
+                return { ...exercise, goal: true };
+              }
+              return exercise;
+            });
+
+            markCardAsCompleted(exerciseId);
+            const nextExercise = getNextIncompleteExercise();
+            if (!nextExercise) {
+              window.location.reload();
+              return;
+            }
+            setCurrentExercise(nextExercise);
+            setStatus('Exercise marked as complete.');
+          } catch (error) {
+            setStatus(error.message || 'Failed to mark exercise as complete.', true);
+            if (button) {
+              button.disabled = false;
+              button.textContent = originalLabel;
+            }
+          }
+        };
+
+        document.querySelectorAll('.mark-complete-form').forEach((form) => {
+          form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const hiddenInput = form.querySelector('input[name="finishedExerciseId"]');
+            const button = form.querySelector('button[type="submit"]');
+            const exerciseId = Number(hiddenInput?.value);
+            if (!Number.isInteger(exerciseId) || exerciseId <= 0 || !button) return;
+            await markExerciseComplete(exerciseId, button);
+          });
+        });
+
+        const removeCurrentExerciseForm = document.getElementById('removeCurrentExerciseForm');
+        if (removeCurrentExerciseForm) {
+          removeCurrentExerciseForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!Number.isInteger(currentExerciseId) || currentExerciseId <= 0) return;
+
+            const button = removeCurrentExerciseForm.querySelector('button[type="submit"]');
+            const originalLabel = button?.textContent || '';
+            if (button) {
+              button.disabled = true;
+              button.textContent = 'Removing...';
+            }
 
             try {
-              const response = await fetch('/markExerciseAsFinished', {
+              const response = await fetch('/removeExerciseFromRoutine', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                   Accept: 'application/json'
                 },
-                body: JSON.stringify({ finishedExerciseId: exerciseId })
+                body: JSON.stringify({ exerciseId: currentExerciseId })
               });
 
               if (!response.ok) {
-                throw new Error('Failed to mark exercise as complete.');
+                throw new Error('Failed to remove current exercise.');
               }
 
-              const card = form.closest('[data-routine-exercise-card]');
-              if (!card) {
+              routineState = routineState.filter((exercise) => Number(exercise.id) !== Number(currentExerciseId));
+              removeCardByExerciseId(currentExerciseId);
+
+              const nextExercise = getNextIncompleteExercise();
+              if (!nextExercise) {
                 window.location.reload();
                 return;
               }
-
-              card.classList.add('completed');
-              form.remove();
-
-              const checkmark = document.createElement('span');
-              checkmark.className = 'checkmark';
-              checkmark.textContent = '✔';
-              card.appendChild(checkmark);
-
-              const statusText = document.createElement('p');
-              statusText.className = 'status-text';
-              statusText.setAttribute('data-i18n', 'common.completed');
-              statusText.textContent = window.PhysioLanguage?.t?.('common.completed') || 'Completed';
-              card.appendChild(statusText);
-
-              if (document.querySelectorAll('.mark-complete-form').length === 0) {
-                window.location.reload();
-              }
+              setCurrentExercise(nextExercise);
+              setStatus('Current exercise removed.');
             } catch (error) {
-              button.disabled = false;
-              button.textContent = originalLabel;
-              alert(error.message || 'Failed to mark exercise as complete.');
+              setStatus(error.message || 'Failed to remove current exercise.', true);
+              if (button) {
+                button.disabled = false;
+                button.textContent = originalLabel;
+              }
             }
           });
-        });
+        }
+
+        const markCurrentExerciseCompleteForm = document.getElementById('markCurrentExerciseCompleteForm');
+        if (markCurrentExerciseCompleteForm) {
+          markCurrentExerciseCompleteForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!Number.isInteger(currentExerciseId) || currentExerciseId <= 0) return;
+            const button = markCurrentExerciseCompleteForm.querySelector('button[type="submit"]');
+            await markExerciseComplete(currentExerciseId, button);
+          });
+        }
+
+        const addCurrentExerciseFavouriteForm = document.getElementById('addCurrentExerciseFavouriteForm');
+        if (addCurrentExerciseFavouriteForm) {
+          addCurrentExerciseFavouriteForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!Number.isInteger(currentExerciseId) || currentExerciseId <= 0) return;
+
+            const button = addCurrentExerciseFavouriteForm.querySelector('button[type="submit"]');
+            const originalLabel = button?.textContent || '';
+            if (button) {
+              button.disabled = true;
+              button.textContent = 'Saving...';
+            }
+
+            try {
+              const response = await fetch('/addExerciseToFavouritesThenShowFavourites', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Accept: 'application/json'
+                },
+                body: JSON.stringify({ favouriteExerciseId: currentExerciseId })
+              });
+              const result = await response.json();
+              if (!response.ok) {
+                throw new Error(result.error || 'Failed to add exercise to favourites.');
+              }
+
+              if (button) {
+                button.disabled = true;
+                button.textContent = result.added
+                  ? (window.PhysioLanguage?.t?.('routine.addedToFavourites') || 'Added to Favourites')
+                  : (window.PhysioLanguage?.t?.('routine.alreadyFavourite') || 'Already in favourites');
+              }
+              setStatus('Favourites updated.');
+            } catch (error) {
+              setStatus(error.message || 'Failed to add to favourites.', true);
+              if (button) {
+                button.disabled = false;
+                button.textContent = originalLabel;
+              }
+            }
+          });
+        }
+
+        if (currentExercisePanel) {
+          const initialCurrentExercise = getExerciseById(currentExerciseId) || getNextIncompleteExercise();
+          setCurrentExercise(initialCurrentExercise);
+        }
 
         const painFeedbackForm = document.getElementById('painFeedbackForm');
         if (painFeedbackForm) {
