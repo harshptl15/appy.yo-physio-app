@@ -28,16 +28,16 @@ const navGroups = [
   }
 ];
 
-function SideContent({ t, username, currentPath, onNavigate }) {
+function SideContent({ t, username, currentPath, onNavigate, mobile = false }) {
   return (
     <>
       <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">PhysioApp</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">PhysioFit</p>
         <p className="mt-2 text-lg font-semibold">{t('dashboard.header.welcomeBack', 'Welcome back')}, {username}</p>
         <p className="text-sm text-slate-400">{t('dashboard.header.subtitle', "Here is your recovery progress for today.")}</p>
       </div>
 
-      <nav className="mt-6 space-y-5">
+      <nav className="mt-6 min-h-0 flex-1 space-y-5 overflow-y-auto pr-1">
         {navGroups.map((group) => (
           <div key={group.titleKey}>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{t(group.titleKey, group.titleKey)}</p>
@@ -71,7 +71,9 @@ function SideContent({ t, username, currentPath, onNavigate }) {
       <a
         href="/logout"
         onClick={onNavigate}
-        className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/70 text-sm font-semibold text-white hover:bg-slate-800"
+        className={`mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/70 text-sm font-semibold text-white hover:bg-slate-800 ${
+          mobile ? 'mb-14' : 'mb-2'
+        }`}
       >
         {t('dashboard.logout', 'Logout')}
       </a>
@@ -86,7 +88,7 @@ export function SidebarNav({ t, username, currentPath, mobileMounted, mobileOpen
 
   return (
     <>
-      <aside className="hidden w-72 border-r border-slate-800 bg-app-nav px-5 py-6 text-slate-100 lg:flex lg:flex-col">
+      <aside className="hidden min-h-0 w-72 border-r border-slate-800 bg-app-nav px-5 py-6 text-slate-100 lg:flex lg:flex-col">
         <SideContent t={t} username={username} currentPath={currentPath} onNavigate={handleNavigate} />
       </aside>
 
@@ -100,11 +102,11 @@ export function SidebarNav({ t, username, currentPath, mobileMounted, mobileOpen
             aria-label={t('dashboard.menu.close', 'Close navigation')}
           />
           <aside
-            className={`fixed inset-y-0 left-0 z-30 flex w-80 flex-col border-r border-slate-800 bg-app-nav px-5 py-6 text-slate-100 shadow-2xl transition-transform duration-200 ease-out lg:hidden ${
+            className={`fixed inset-y-0 left-0 z-30 flex min-h-0 w-80 flex-col border-r border-slate-800 bg-app-nav px-5 pb-10 pt-6 text-slate-100 shadow-2xl transition-transform duration-200 ease-out lg:hidden ${
               mobileOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
           >
-            <SideContent t={t} username={username} currentPath={currentPath} onNavigate={handleNavigate} />
+            <SideContent t={t} username={username} currentPath={currentPath} onNavigate={handleNavigate} mobile />
           </aside>
         </>
       ) : null}
